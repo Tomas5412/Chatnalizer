@@ -7,8 +7,8 @@ __pycache__/
 *.so
 
 # CHATNALIZER EXCLUSIVE 
-chat/*
-chatparseados/*
+src/chat/*
+src/chatparseados/*
 
 # Distribution / packaging
 .Python

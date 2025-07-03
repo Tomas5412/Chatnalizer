@@ -1,5 +1,9 @@
 from enum import Enum
 
+class FORMAT_TYPE(Enum):
+    ANDROID = 0
+    IPHONE = 1
+
 class ActionType(Enum):
     ADDITION = "addition" #Addition of other
     S_ADDITION = "s_addition" #Addition of self "via link"
