@@ -69,14 +69,42 @@ def parseHeader(header:str, fType:FORMAT_TYPE):
 
 
 
-def parseMessage(message:str) -> str:
+def parseMessage(message:str, kwords:dict=SPANISH_KEYWORDS):
     # TODO: GET THIS TO WORK AAAAAAAAAAAAA
-    return message
+    parsedMsg = message
+    deleted = False
+    edited = False
+    mType = MediaType.NONE
+    for kword in kwords["OMMITED_MEDIA"]:
+        if parsedMsg == kword:
+            mType = MediaType.OTHER
+    for kword in kwords["DELETED_MSG"]:
+        if parsedMsg == kword:
+            deleted = True
+            parsedMsg = ""
+    for kword in kwords["EDITED_MSG"]:
+        if kword in parsedMsg:
+            edited = True
+    for kword in kwords["TEMPORAL_MEDIA"]:
+        if kword == parsedMsg:
+            mType = MediaType.T_MEDIA
+    for kword in kwords["MEDIA_MSG"]:
+        if kword in parsedMsg:
+            #Found one!
+            for type in MediaType:
+                if type in FILENAME_EXTENSIONS:
+                    for ext in FILENAME_EXTENSIONS[type]:
+                        if ext in parsedMsg:
+                            mType = type
+                            parsedMsg = parsedMsg[:-(len(kword)+1)]
+    return edited, deleted, mType, parsedMsg
 
 
-def parseChat(data):
+def parseChat(data, language:str="SPANISH"):
     groupChat = Chat()
-
+    match language:
+        case "SPANISH":
+            languageDict = SPANISH_KEYWORDS
     # First message is always null, plus we copy messages because we don't want to mess with it I suppose?
     chat = data[1:]
     messageCounter = 0
@@ -94,27 +122,30 @@ def parseChat(data):
         if header[-1] == ":": 
             messageCounter += 1
             day, month, year, hour, minute, name = parseHeader(header, format)
-            Pmessage = parseMessage(message)
+            wE,wD,mType, Pmessage = parseMessage(message,languageDict)
             userId = groupChat.getOrMakeUserId(name)
-            groupChat.addMessageChat(day, month, year, hour, minute, Pmessage, userId)
-            if "hola" in message:
-                holaCounter += 1
+            groupChat.addMessageChat(day, month, year, hour, minute, Pmessage, userId, wE, wD, mType)
 
         else: 
             eventCounter += 1
             events.append(header)
 
     print(f"Se enviaron {messageCounter} mensajes, con {eventCounter} 'Eventos de chat'")
-
+    print("="*70)
     mlist = groupChat.members
     for i in range(len(mlist)):
         user = mlist[i]
         print(f"{user.name} mandó {user.m_ammount} mensajes. Sus primeros dos mensajes fueron:")
-        for j in range(2):
-            msg = user.messages[j]
-            print(f"{msg.day}/{msg.month}/{msg.year} {msg.hour}:{msg.minute} {user.name} - {msg.content}")
-
+        if user.m_ammount > 5:
+            for j in range(3):
+                msg = user.messages[j]
+                print(f"{msg.day}/{msg.month}/{msg.year} {msg.hour}:{msg.minute} {user.name} - {msg.content}")
+        print(f"Este usuario eliminó {user.deletedMessages} mensajes y editó {user.editedMessages}.\n")
+        # print(user.mediaSent)
+        print(f"Este usuario mandó {sum(user.mediaSent.values())} archivos multimedia. {user.mediaSent[MediaType.STICKER]} de ellos fueron stickers.")
+        print("="*70)
 
 
 if __name__ == "__main__":
-    parseChat(messages)
+    print("This shouldn't be ran alone.")
+    # parseChat(messages)
