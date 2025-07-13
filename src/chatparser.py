@@ -1,14 +1,15 @@
-# from chatparseados import messages #! Fill with the correct file
 from data.classes import *
+from datetime import datetime
 
 def splitDateNameByFormat(header: str, fType:FORMAT_TYPE):
     if fType == FORMAT_TYPE.ANDROID:
         return header.split("-",maxsplit=1)
     elif fType == FORMAT_TYPE.IPHONE:
         division = header[1:]
+        if division[0] == "[": division = division[1:]
         return division.split("]",maxsplit=1)
 
-def parseHeaderAndriod(dateDiv, nameDiv):
+def parseHeaderAndriod(dateDiv, nameDiv, dType= DATE_TYPE.DDMMYY):
     day = ""
     day += (dateDiv[0])
     if dateDiv[1] in ["0","1","2","3","4","5","6","7","8","9"]: # ? I know how awful this is, but isDigit(dateDiv[1]) doesn't work.
@@ -23,15 +24,21 @@ def parseHeaderAndriod(dateDiv, nameDiv):
         dateDiv = dateDiv[3:]
     else: dateDiv = dateDiv[2:]
 
-    year = dateDiv[0:4]
-    hour = dateDiv[6:8]
-    minute = dateDiv[9:11]
+    year = int(dateDiv[0:4])
+    hour = int(dateDiv[6:8])
+    minute = int(dateDiv[9:11])
 
+    day = int(day)
+    month = int(month)
+    # print(day, month, year, hour, minute)
 
     name = nameDiv[1:-1]
-    return day, month, year, hour, minute, name
+    if dType == DATE_TYPE.MMDDYY:
+        return month, day, year, hour, minute, name
+    else: return day, month, year, hour, minute, name
 
-def parseHeaderIphone(dateDiv, nameDiv):
+def parseHeaderIphone(dateDiv, nameDiv, dType=DATE_TYPE.DDMMYY):
+    # print(dateDiv)
     day = ""
     day += (dateDiv[0])
     if dateDiv[1] in ["0","1","2","3","4","5","6","7","8","9"]: # ? I know how awful this is, but isDigit(dateDiv[1]) doesn't work.
@@ -46,14 +53,19 @@ def parseHeaderIphone(dateDiv, nameDiv):
         dateDiv = dateDiv[3:]
     else: dateDiv = dateDiv[2:]
 
-    year = dateDiv[0:2]
-    hour = dateDiv[4:6]
-    minute = dateDiv[7:9]
+    year = int("20" + dateDiv[0:2]) #The Iphone functionality will break in 2100, Whoops!
+    hour = int(dateDiv[4:6])
+    minute = int(dateDiv[7:9])
+
+    day = int(day)
+    month = int(month)
 
 
     name = nameDiv[1:-1]
-    return day, month, year, hour, minute, name
 
+    if dType == DATE_TYPE.MMDDYY:
+        return month, day, year, hour, minute, name
+    else: return day, month, year, hour, minute, name
 
 
 def parseHeader(header:str, fType:FORMAT_TYPE):
@@ -71,7 +83,7 @@ def parseHeader(header:str, fType:FORMAT_TYPE):
 
 def parseMessage(message:str, kwords:dict=SPANISH_KEYWORDS):
     # TODO: GET THIS TO WORK AAAAAAAAAAAAA
-    parsedMsg = message
+    parsedMsg = message[1:]
     deleted = False
     edited = False
     mType = MediaType.NONE
@@ -105,7 +117,7 @@ def parseChat(data, language:str="SPANISH"):
     match language:
         case "SPANISH":
             languageDict = SPANISH_KEYWORDS
-    # First message is always null, plus we copy messages because we don't want to mess with it I suppose?
+    # First message is always null
     chat = data[1:]
     messageCounter = 0
     holaCounter = 0
@@ -122,9 +134,10 @@ def parseChat(data, language:str="SPANISH"):
         if header[-1] == ":": 
             messageCounter += 1
             day, month, year, hour, minute, name = parseHeader(header, format)
+            dtime = datetime(day=day,month=month,year=year,hour=hour,minute=minute)
             wE,wD,mType, Pmessage = parseMessage(message,languageDict)
             userId = groupChat.getOrMakeUserId(name)
-            groupChat.addMessageChat(day, month, year, hour, minute, Pmessage, userId, wE, wD, mType)
+            groupChat.addMessageChat(dtime, Pmessage, userId, wE, wD, mType)
 
         else: 
             eventCounter += 1
@@ -137,11 +150,11 @@ def parseChat(data, language:str="SPANISH"):
         user = mlist[i]
         print(f"{user.name} mandó {user.m_ammount} mensajes. Sus primeros dos mensajes fueron:")
         if user.m_ammount > 5:
-            for j in range(3):
+            for j in range(2):
                 msg = user.messages[j]
-                print(f"{msg.day}/{msg.month}/{msg.year} {msg.hour}:{msg.minute} {user.name} - {msg.content}")
+                print(f"{msg.dtime} {user.name} - {repr(msg.content)}")
         print(f"Este usuario eliminó {user.deletedMessages} mensajes y editó {user.editedMessages}.\n")
-        # print(user.mediaSent)
+        print(user.mediaSent)
         print(f"Este usuario mandó {sum(user.mediaSent.values())} archivos multimedia. {user.mediaSent[MediaType.STICKER]} de ellos fueron stickers.")
         print("="*70)
 

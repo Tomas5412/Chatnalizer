@@ -1,8 +1,13 @@
 from enum import Enum
+from datetime import datetime
 
 class FORMAT_TYPE(Enum):
     ANDROID = 0
     IPHONE = 1
+
+class DATE_TYPE(Enum):
+    MMDDYY = 0
+    DDMMYY = 1
 
 class ActionType(Enum):
     ADDITION = "addition" #Addition of other
@@ -44,34 +49,25 @@ FILENAME_EXTENSIONS = {
 
 
 SPANISH_KEYWORDS = {
-    "MEDIA_MSG" : ["(archivo adjunto)"],
-    "OMMITED_MEDIA" : [" <Multimedia omitido>\n", " \u200eaudio omitido\n",
-                        " \u200eimagen omitida\n", " \u200evideo omitido\n", " \u200esticker omitido\n"],
-    "TEMPORAL_MEDIA" : [" null\n", 
-                      "Recibiste un mensaje de visualización única. Para mayor privacidad, solo puedes abrirlo en tu teléfono."],
-    "OTHER_MEDIA" : ["No se puede mostrar este mensaje aquí. Para verlo, abre WhatsApp en tu teléfono.",
+    "MEDIA_MSG" : ["(archivo adjunto)", "<adjunto:"],
+    "OMMITED_MEDIA" : ["<Multimedia omitido>\n", "\u200eaudio omitido\n",
+                        "\u200eimagen omitida\n", "\u200evideo omitido\n", "\u200esticker omitido\n"],
+    "TEMPORAL_MEDIA" : ["null\n", 
+                      "\u200eRecibiste un mensaje de visualización única. Para mayor privacidad, solo puedes abrirlo en tu teléfono.\n"],
+    "OTHER_MEDIA" : [ "\u200eNo se puede mostrar este mensaje aquí. Para verlo, abre WhatsApp en tu teléfono.\n",
                      ],
-    "DELETED_MSG" : [" Se eliminó este mensaje.\n"],
+    "DELETED_MSG" : ["Se eliminó este mensaje.\n", "\u200eSe eliminó este mensaje.\n"],
     "EDITED_MSG" : ["Se editó este mensaje."]
 }
 
 
 
 class Event:
-    # user: str 
     # This class belongs inside of Member.
-    minute: int
-    hour: int
-    day: int
-    month: int
-    year: int
+    dtime : datetime
 
-    def __init__(self, d, m, y,hour,minute):
-        self.day = d
-        self.month = m
-        self.year = y
-        self.hour = hour
-        self.minute = minute
+    def __init__(self, dt):
+        self.dtime = dt
         
 
 
@@ -81,8 +77,8 @@ class Message(Event):
     wasEdited: bool = False
     wasDeleted: bool = False
 
-    def __init__(self, d, m, y,hour,minute, content:str, wE: bool=False, wD: bool=False, mT=MediaType.NONE):
-        Event.__init__(self, d,m,y,hour,minute)
+    def __init__(self, dt, content:str, wE: bool=False, wD: bool=False, mT=MediaType.NONE):
+        Event.__init__(self, dt)
         self.content = content
         self.wasDeleted = wD
         self.wasEdited = wE
@@ -94,8 +90,8 @@ class Action(Event):
     type: ActionType
     target: str = None
 
-    def __init__(self, d, m, y,hour,minute, type: ActionType, target: str=None):
-        Event.__init__(self, d,m,y,hour,minute)
+    def __init__(self, dt, type: ActionType, target: str=None):
+        Event.__init__(self, dt)
         self.type = type
         self.target = target
 
@@ -145,8 +141,8 @@ class Chat:
         self.members.append(member)
         return id
 
-    def addMessageChat(self, d, m, y, hour, minute, msg:Message, id: int, wE: bool=False, wD: bool=False, mT=MediaType.NONE):
-        message = Message(d,m,y,hour,minute,content=msg, wE=wE, wD=wD, mT=mT)
+    def addMessageChat(self, dt, msg:str, id: int, wE: bool=False, wD: bool=False, mT=MediaType.NONE):
+        message = Message(dt,content=msg, wE=wE, wD=wD, mT=mT)
         self.members[id].addMessageMember(message)
 
     def getOrMakeUserId(self, name:str):
