@@ -1,23 +1,30 @@
-# CHATNALIZER
+# Chatnalizador
 
-El chatnalizador analiza chats siguiendo el patrón **DD/MM/YYYY, HH:MM {Username}:**
-
-[NUEVO] También detecta el patrón **[DD/MM/YY, HH:MM] {Username}:** que se usa en dispositivos de Apple (Mac y Apple)
 ___
 
 ## Cómo ejecutar
 
 Desde la carpeta inicial, correr:
 
-```$ python .\src\chatnalizer.py <ruta al archivo de texto>```
+```$ python .\src\chatnalizer.py```
 
-Donde la ruta tiene que ser el camino absoluto hacia el documento .txt
+Y elegir el archivo que contenga el chat a analizar. El archivo **Debe ser** un archivo de texto .txt con codificación utf-8
 ___
 
-## Incoherencias conocidas
+## Patrones de hora detectados
 
-Si un nombre de usuario lleva el caracter ":", los mensajes de este usuario van a tener incoherencias. Se recomienda cambiar estos antes de usar el Chatnalizador
+- [DD/MM/YY, HH:MM]
 
-Idem con un nombre de usuario que por algún motivo tenga un fin de línea en su nombre.
+- [HH:MM, DD/MM/YYYY]
+
+- DD/MM/YYYY, HH:MM
+
+___
+
+## Incoherencias
+
+Si un nombre de usuario lleva el caracter ":", los mensajes de ese usuario van a tener incoherencias. Se recomienda cambiar estos antes de usar el Chatnalizador
+
+Idem con un nombre de usuario que por algún motivo malicioso tenga un fin de línea en su nombre.
 
 Por supuesto que todos los mensajes que contengan algún patrón utilizado por el sistema tendrán incoherencias. En especial los mensajes que copian y pegan otros mensajes.
