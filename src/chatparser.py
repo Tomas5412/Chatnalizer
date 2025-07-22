@@ -2,12 +2,18 @@ from data.classes import *
 from datetime import datetime
 
 def splitDateNameByFormat(header: str, fType:FORMAT_TYPE):
-    if fType == FORMAT_TYPE.ANDROID:
-        return header.split("-",maxsplit=1)
-    elif fType == FORMAT_TYPE.IPHONE:
-        division = header[1:]
-        if division[0] == "[": division = division[1:]
-        return division.split("]",maxsplit=1)
+    match fType:
+        case FORMAT_TYPE.ANDROID:
+            return header.split("-",maxsplit=1)
+        case FORMAT_TYPE.IPHONE:
+            division = header[1:]
+            if division[0] == "[": division = division[1:]
+            return division.split("]",maxsplit=1)
+        case FORMAT_TYPE.OLD:
+            division = header[1:]
+            if division[0] == "[": division = division[1:]
+            return division.split("]",maxsplit=1)
+
 
 def parseHeaderAndriod(dateDiv, nameDiv, dType= DATE_TYPE.DDMMYY):
     day = ""
@@ -67,17 +73,54 @@ def parseHeaderIphone(dateDiv, nameDiv, dType=DATE_TYPE.DDMMYY):
         return month, day, year, hour, minute, name
     else: return day, month, year, hour, minute, name
 
+def parseHeaderOld(dateDiv, nameDiv, dType=DATE_TYPE.DDMMYY):
+    # print(dateDiv)
+    hour = int(dateDiv[0:2])
+    minute = int(dateDiv[3:5])
+
+    dateDiv = dateDiv[7:]
+
+    day = ""
+    day += (dateDiv[0])
+    if dateDiv[1] in ["0","1","2","3","4","5","6","7","8","9"]: # ? I know how awful this is, but isDigit(dateDiv[1]) doesn't work.
+        day += (dateDiv[1])
+        dateDiv = dateDiv[3:]
+    else: dateDiv = dateDiv[2:]
+
+    month = ""
+    month += (dateDiv[0])
+    if dateDiv[1] in ["0","1","2","3","4","5","6","7","8","9"]: # ? I know how awful this is, but isDigit(dateDiv[1]) doesn't work.
+        month += (dateDiv[1])
+        dateDiv = dateDiv[3:]
+    else: dateDiv = dateDiv[2:]
+
+    year = int(dateDiv[0:5])
+
+    day = int(day)
+    month = int(month)
+
+
+    name = nameDiv[1:-1]
+
+    if dType == DATE_TYPE.MMDDYY:
+        return month, day, year, hour, minute, name
+    else: return day, month, year, hour, minute, name
+
 
 def parseHeader(header:str, fType:FORMAT_TYPE):
     divisions = splitDateNameByFormat(header,fType)
     fDiv = divisions[0]
     sDiv = divisions[1]
-    if fType == FORMAT_TYPE.ANDROID:
-        day, month, year, hour, minute, name = parseHeaderAndriod(fDiv, sDiv)
-        return day, month, year, hour, minute, name
-    else:
-        day, month, year, hour, minute, name = parseHeaderIphone(fDiv, sDiv)
-        return day, month, year, hour, minute, name
+    match fType:
+        case FORMAT_TYPE.ANDROID:
+            day, month, year, hour, minute, name = parseHeaderAndriod(fDiv, sDiv)
+            return day, month, year, hour, minute, name
+        case FORMAT_TYPE.IPHONE:
+            day, month, year, hour, minute, name = parseHeaderIphone(fDiv, sDiv)
+            return day, month, year, hour, minute, name
+        case FORMAT_TYPE.OLD:
+            day, month, year, hour, minute, name = parseHeaderOld(fDiv, sDiv)
+            return day, month, year, hour, minute, name
 
 
 
@@ -112,27 +155,31 @@ def parseMessage(message:str, kwords:dict=SPANISH_KEYWORDS):
     return edited, deleted, mType, parsedMsg
 
 
-def parseChat(data, language:str="SPANISH"):
+def parseChat(data, language:str="SPANISH") -> Chat:
     groupChat = Chat()
     match language:
         case "SPANISH":
             languageDict = SPANISH_KEYWORDS
-    # First message is always null
+    # First message is always null?
     chat = data[1:]
-    messageCounter = 0
-    holaCounter = 0
-    eventCounter = 0
+    # messageCounter = 0
+    # eventCounter = 0
     events = []
     format = FORMAT_TYPE.ANDROID
     if(chat[0][0] == "["): 
-        print("USANDO FORMATO IPHONE ...")
-        format = FORMAT_TYPE.IPHONE
+        if chat[0][2] == ":" or chat[0][3] == ":":
+            print("USANDO FORMATO VIEJO ...")
+            format = FORMAT_TYPE.OLD
+        else:
+            # patternToUse = CHAT_PATTERN_IPHONE
+            print("USANDO FORMATO IPHONE ...")
+            format = FORMAT_TYPE.IPHONE
 
     for i in range(0, len(chat), 2):
         header = chat[i]
         message = chat[i+1]
         if header[-1] == ":": 
-            messageCounter += 1
+            # messageCounter += 1
             day, month, year, hour, minute, name = parseHeader(header, format)
             dtime = datetime(day=day,month=month,year=year,hour=hour,minute=minute)
             wE,wD,mType, Pmessage = parseMessage(message,languageDict)
@@ -140,23 +187,10 @@ def parseChat(data, language:str="SPANISH"):
             groupChat.addMessageChat(dtime, Pmessage, userId, wE, wD, mType)
 
         else: 
-            eventCounter += 1
+            # eventCounter += 1
             events.append(header)
 
-    print(f"Se enviaron {messageCounter} mensajes, con {eventCounter} 'Eventos de chat'")
-    print("="*70)
-    mlist = groupChat.members
-    for i in range(len(mlist)):
-        user = mlist[i]
-        print(f"{user.name} mandó {user.m_ammount} mensajes. Sus primeros dos mensajes fueron:")
-        if user.m_ammount > 5:
-            for j in range(2):
-                msg = user.messages[j]
-                print(f"{msg.dtime} {user.name} - {repr(msg.content)}")
-        print(f"Este usuario eliminó {user.deletedMessages} mensajes y editó {user.editedMessages}.\n")
-        print(user.mediaSent)
-        print(f"Este usuario mandó {sum(user.mediaSent.values())} archivos multimedia. {user.mediaSent[MediaType.STICKER]} de ellos fueron stickers.")
-        print("="*70)
+    return groupChat
 
 
 if __name__ == "__main__":

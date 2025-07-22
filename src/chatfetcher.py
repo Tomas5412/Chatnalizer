@@ -7,7 +7,10 @@ import re
 
 CHAT_PATTERN = r'^([0-9]{1,2}/[0-9]{1,2}/[0-9]{4}, [0-9]{2}:[0-9]{2} - [^:\n]+[:\n])'
 
-CHAT_PATTERN_IPHONE = r'^(\u200e*\[[0-9]{1,2}/[0-9]{1,2}/[0-9]{2}, [0-9]{2}:[0-9]{2}:[0-9]{2}\] [^:\n]+[:\n])'
+CHAT_PATTERN_IPHONE = r'^(\u200e*\[[0-9]{1,2}/[0-9]{1,2}/[0-9]{2,4}, [0-9]{2}:[0-9]{2}:[0-9]{2,4}\] [^:\n]+[:\n])'
+
+CHAT_PATTERN_OLD = r'^(\u200e*\[[0-9]{1,2}:[0-9]{1,2}, [0-9]{1,2}/[0-9]{1,2}/[0-9]{2,4}\] [^:\n]+[:\n])'
+
 
 def chatFetch(fileRoute: str, fileName = '') -> list[str]:
 
@@ -18,7 +21,8 @@ def chatFetch(fileRoute: str, fileName = '') -> list[str]:
         chat = chatFile.read()
         chatFile.close()
         print("Fetch completed! Parsing...\n")
-    except:
+    except Exception as e:
+        print(e)
         print(f"Error reading file {fileRoute}. Make sure it exists")
         return []
 
@@ -27,7 +31,10 @@ def chatFetch(fileRoute: str, fileName = '') -> list[str]:
 
     patternToUse = CHAT_PATTERN
     if chat[0] == "[":
-        patternToUse = CHAT_PATTERN_IPHONE
+        if chat[2] == ":" or chat[3] == ":":
+            patternToUse = CHAT_PATTERN_OLD
+        else:
+            patternToUse = CHAT_PATTERN_IPHONE
     messages = re.split(pattern=patternToUse, string=chat, flags=re.MULTILINE)
 
     if fileName != '':

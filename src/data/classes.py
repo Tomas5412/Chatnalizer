@@ -4,6 +4,7 @@ from datetime import datetime
 class FORMAT_TYPE(Enum):
     ANDROID = 0
     IPHONE = 1
+    OLD = -1
 
 class DATE_TYPE(Enum):
     MMDDYY = 0
@@ -133,7 +134,10 @@ class Member:
 
 
 class Chat:
-    members: list[Member] = []
+    members: list[Member]
+    messageAmount: int
+    events: list[Event]
+    eventAmount: int
 
     def addMember(self, name: str) -> int:
         id = len(self.members)
@@ -144,6 +148,7 @@ class Chat:
     def addMessageChat(self, dt, msg:str, id: int, wE: bool=False, wD: bool=False, mT=MediaType.NONE):
         message = Message(dt,content=msg, wE=wE, wD=wD, mT=mT)
         self.members[id].addMessageMember(message)
+        self.messageAmount += 1
 
     def getOrMakeUserId(self, name:str):
         for i in range(len(self.members)):
@@ -152,3 +157,9 @@ class Chat:
                 return i
         id = self.addMember(name)
         return id
+    
+    def __init__(self):
+        self.members = []
+        self.messageAmount = 0
+        self.events = []
+        self.eventAmount = 0
