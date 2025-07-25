@@ -9,6 +9,7 @@ __pycache__/
 # CHATNALIZER EXCLUSIVE 
 src/chat/*
 src/chatparseados/*
+src/results.txt
 
 # Distribution / packaging
 .Python
