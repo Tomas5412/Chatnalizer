@@ -1,7 +1,7 @@
 # coding=utf-8
 
 # import matplotlib.pyplot as plt
-import os
+from os import path
 import re
 # import emoji
 
@@ -42,7 +42,7 @@ def chatFetch(fileRoute: str, fileName = '') -> list[str]:
 
     if fileName != '': # This is deprecated, as it's never used.
         try:
-            chatnalizatedPath = os.path.join(os.path.abspath(""), f"chatparseados/{fileName}.py")
+            chatnalizatedPath = path.join(path.abspath(""), f"chatparseados/{fileName}.py")
             with open(chatnalizatedPath, "w+") as f:
                 f.write(f"messages = {messages}")
         except:

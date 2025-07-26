@@ -11,7 +11,7 @@ THEME_FILE = "forest-dark.tcl"
 THEME_NAME = "forest-dark"
 
 def getFile():
-    filename.set(askopenfilename(defaultextension=".txt"))
+    filename.set(askopenfilename())
     if filename.get():
         if language.get():
             filenameDisplay.set("File: " + filename.get())
@@ -64,7 +64,7 @@ try:
     getFileText = tk.StringVar(master=root, value="Get file")
     filenameDisplay = tk.StringVar(master=root, value="No file selected.")
     chanalisisText = tk.StringVar(master=root,value="Start Chatnalisis")
-    warningText = tk.StringVar(master=root, value="English Chatnalisis is not supported: results will be in Spanish.")
+    warningText = tk.StringVar(master=root, value="")
 
     def changeLanguage():
         language.set(not language.get())
@@ -72,7 +72,7 @@ try:
             languageText.set("Change language")
             chanalisisText.set("Start Chatnalisis")
             getFileText.set("Get file")
-            warningText.set("English Chatnalisis is not supported: results will be in Spanish.")
+            warningText.set("")
             if filenameDisplay.get() == "No se eligió un archivo.":
                 filenameDisplay.set("No file selected.")
             else:
@@ -81,7 +81,7 @@ try:
             languageText.set("Cambiar lenguaje")
             chanalisisText.set("Empezar Chatnálisis")
             getFileText.set("Obtener archivo")
-            warningText.set("")
+            warningText.set("Todavía no hay soporte de Chatnálisis en español: el resultado estará en inglés.")
             if filenameDisplay.get() == "No file selected.": 
                 filenameDisplay.set("No se eligió un archivo.")
             else:

@@ -2,7 +2,7 @@ from chatparser import parseChat
 from chatfetcher import chatFetch
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
-import os
+from os import path
 from data.classes import MediaType
 
 
@@ -10,7 +10,7 @@ from data.classes import MediaType
 
 def analizeChat(filename: str) -> str:
     if not filename: raise ValueError("File not selected.")
-    _, ext = os.path.splitext(filename)
+    _, ext = path.splitext(filename)
     if ext != ".txt":
         raise ValueError("File must be .txt!")
     else:    
@@ -20,18 +20,18 @@ def analizeChat(filename: str) -> str:
         else:
             groupChat = parseChat(messages)
             message = ''
-            message += f"Se enviaron {groupChat.messageAmount} mensajes.\n"
+            message += f"{groupChat.messageAmount} messages were sent.\n"
             message += "="*70 + "\n"
             mlist = groupChat.members
             for user in mlist:
-                message += f"{user.name} mandó {user.m_ammount} mensajes.\n"
+                message += f"{user.name} has sent {user.m_ammount} messages.\n"
                 # if user.m_ammount > 5:
                 #     for j in range(2):
                 #         msg = user.messages[j]
                 #         print(f"{msg.dtime} {user.name} - {repr(msg.content)}")
-                message += f"Eliminó {user.deletedMessages} mensajes y editó {user.editedMessages}.\n"
+                message += f"They deleted {user.deletedMessages} messages and edited {user.editedMessages}.\n"
                 # print(user.mediaSent)
-                message += f"Mandó {sum(user.mediaSent.values())} archivos multimedia. {user.mediaSent[MediaType.STICKER]} de ellos fueron stickers y {user.mediaSent[MediaType.T_MEDIA]} fueron temporales.\n"
+                message += f"They sent {sum(user.mediaSent.values())} media files. {user.mediaSent[MediaType.STICKER]} of them were stickers and {user.mediaSent[MediaType.T_MEDIA]} were once media.\n"
                 # print(f"{[message.content for message in user.messages if message.dtime.day == 6 and message.dtime.month == 6]}")
                 message += "="*70 + "\n"
         print("Parsing completed!")
