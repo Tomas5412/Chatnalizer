@@ -6,7 +6,7 @@ ___
 
 Desde la carpeta inicial, correr:
 
-```$ python .\src\chatnalizer.py```
+```$ python .\src\app.py```
 
 Y elegir el archivo que contenga el chat a analizar. El archivo **Debe ser** un archivo de texto .txt con codificación utf-8
 ___
