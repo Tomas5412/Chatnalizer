@@ -9,9 +9,10 @@ from data.classes import MediaType
 
 
 def analizeChat(filename: str) -> str:
+    if not filename: raise ValueError("File not selected.")
     _, ext = os.path.splitext(filename)
     if ext != ".txt":
-        print("File must be .txt!")
+        raise ValueError("File must be .txt!")
     else:    
         messages = chatFetch(filename)
         if messages == []:

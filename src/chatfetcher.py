@@ -20,7 +20,7 @@ def chatFetch(fileRoute: str, fileName = '') -> list[str]:
         chatFile = open(fileRoute)
         chat = chatFile.read()
         chatFile.close()
-        print("Fetch completed! Parsing...\n")
+        print("Fetch completed! Parsing...")
     except Exception as e:
         print(e)
         print(f"Error reading file {fileRoute}. Make sure it exists")
@@ -30,6 +30,9 @@ def chatFetch(fileRoute: str, fileName = '') -> list[str]:
     # emojiFreeChat = emoji.demojize(chat)
 
     patternToUse = CHAT_PATTERN
+
+    if len(chat) < 4: raise ValueError("File does not contain chat.")
+
     if chat[0] == "[":
         if chat[2] == ":" or chat[3] == ":":
             patternToUse = CHAT_PATTERN_OLD
@@ -37,7 +40,7 @@ def chatFetch(fileRoute: str, fileName = '') -> list[str]:
             patternToUse = CHAT_PATTERN_IPHONE
     messages = re.split(pattern=patternToUse, string=chat, flags=re.MULTILINE)
 
-    if fileName != '':
+    if fileName != '': # This is deprecated, as it's never used.
         try:
             chatnalizatedPath = os.path.join(os.path.abspath(""), f"chatparseados/{fileName}.py")
             with open(chatnalizatedPath, "w+") as f:
@@ -45,6 +48,9 @@ def chatFetch(fileRoute: str, fileName = '') -> list[str]:
         except:
             print("Error writing to file")
             return []
+        
+    if len(messages) == 1:
+        raise ValueError("File does not contain chat.")
     return messages
 
 if __name__ == "__main__":
