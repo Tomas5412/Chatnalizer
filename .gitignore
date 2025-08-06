@@ -10,6 +10,7 @@ __pycache__/
 src/chat/*
 src/chatparseados/*
 src/results.txt
+results_*
 
 # Distribution / packaging
 .Python

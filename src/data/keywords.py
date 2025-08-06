@@ -16,3 +16,8 @@ FILENAME_EXTENSIONS = {
     "VIDEO" : [".mp4"]
 
 }
+
+
+WORDS_TO_IGNORE = ["<multimedia","omitido>","null","omitido","omitida","sticker","audio","imagen","video","<se","mensaje.>","<adjunto:"]
+
+MESSAGES_TO_IGNORE = ["imagen omitida", "audio omitido", "null", "<multimedia omitido>", "sticker omitido", "video omitido", "eliminaste este mensaje","ubicación en tiempo real compartida","esperando este mensaje"]
