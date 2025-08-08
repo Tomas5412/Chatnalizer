@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, font
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
-from chatnalizer import analizeChat
+from ChatFunctions.chatnalizer import analizeChat
 from os import path
 
 

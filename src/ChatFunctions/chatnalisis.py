@@ -1,6 +1,6 @@
-from data.classes import Chat, datetime
-from chatparser import parseChat
-from data.keywords import WORDS_TO_IGNORE, MESSAGES_TO_IGNORE
+from misc.classes import Chat, datetime
+from ChatFunctions.chatparser import parseChat
+from misc.keywords import WORDS_TO_IGNORE, MESSAGES_TO_IGNORE
 from unicodedata import category
 
 def mostWordsByChatter(chat: Chat):
@@ -150,4 +150,4 @@ def filterChatByTime(dateStart: datetime, dateEnd: datetime, gc: Chat) -> Chat:
 
 
 if __name__ == "__main__":
-    print("This shouldn't be ran alone")
+    print("This shouldn't be run alone")
