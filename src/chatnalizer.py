@@ -31,7 +31,6 @@ def analizeChat(filename: str) -> str:
                 message += f"They deleted {user.deletedMessages} messages and edited {user.editedMessages}.\n"
                 # print(user.mediaSent)
                 message += f"They sent {sum(user.mediaSent.values())} media files. {user.mediaSent[MediaType.STICKER]} of them were stickers and {user.mediaSent[MediaType.T_MEDIA]} were once media.\n"
-                # print(f"{[message.content for message in user.messages if message.dtime.day == 6 and message.dtime.month == 6]}")
                 message += "="*70 + "\n"
             # try:
             #     mostMessagesByChatter(groupChat)

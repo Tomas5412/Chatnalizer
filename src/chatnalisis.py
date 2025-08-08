@@ -1,4 +1,4 @@
-from data.classes import Chat
+from data.classes import Chat, datetime
 from chatparser import parseChat
 from data.keywords import WORDS_TO_IGNORE, MESSAGES_TO_IGNORE
 from unicodedata import category
@@ -38,6 +38,8 @@ def mostMessagesByChatter(chat: Chat, wordList = []):
     if wordList:
         wordList = [m.lower() for m in wordList]
         wordListCount = {member.name : {m:0 for m in wordList} for member in members}
+    else:
+        wordListCount = []
     for member in members:
         mDict = {}
         messages = member.messages
@@ -69,43 +71,83 @@ def getUncommonWordsPerChatter(wDict):
     pDict = {} # Proportion dict!
     for member, mwDict in wDict.items():
         n = len(mwDict)
-        third_q = int(3*n/4) # Third quantile
-        print(third_q, n)
-        # cleanDict = {k:v for k,v in mwDict.items() if v > 10}
         sDict = sorted(mwDict, key=mwDict.get)
-        for word in sDict[third_q:]:
-            # print(value)
+        for word in sDict:
             proportion = mwDict[word] / member.m_ammount
             if word not in pDict.keys():
-                pDict[word] = {member.name : proportion}
+                pDict[word] = {member : proportion}
             else:
-                pDict[word][member.name] = proportion
-
+                pDict[word][member] = proportion
     rareList = []
 
     for word, mlist in pDict.items():
         maxMember = max(mlist, key=mlist.get)
         maxValue = mlist[maxMember]
-        percentage = 1
-        for otherMember, value in mlist.items():
-            if maxValue > 0 and otherMember != maxMember:
-                percentage -= value / maxValue
-        if maxValue > 0:
-            rareList.append([word,maxMember,maxValue])
+        avPctg = 0
+        for _, value in mlist.items():
+            avPctg += value
+        avPctg /= len(mlist)
+        rarenessValue = (maxValue - avPctg) / avPctg
+        rareList.append([word,maxMember,rarenessValue])
     rareList.sort(key=lambda x: x[2],reverse=True)
     uniqueWordPerUser = {}
     for rare in rareList:
-        if rare[1] not in uniqueWordPerUser.keys():
-            uniqueWordPerUser[rare[1]] = (rare[0],rare[2])
+        timesUsedTotal = sum(wDict[member].get(rare[0],0) for member in wDict.keys())
+        timesUsedChatter = wDict[rare[1]][rare[0]]
+        if rare[1].name not in uniqueWordPerUser.keys():
+            uniqueWordPerUser[rare[1].name] = [(rare[0],rare[2]*100, timesUsedTotal, timesUsedChatter, (timesUsedChatter / timesUsedTotal) * 100)]
+        elif len(uniqueWordPerUser[rare[1].name]) <= 5:
+            uniqueWordPerUser[rare[1].name].append((rare[0],rare[2]*100, timesUsedTotal, timesUsedChatter, (timesUsedChatter / timesUsedTotal) * 100))
     return uniqueWordPerUser
 
 
+
+def getUncommonMessagesPerChatter(mDict):
+    pDict = {} # Proportion dict!
+    for member, mwDict in mDict.items():
+        n = len(mwDict)
+        third_q = int(3*n/4) # Third quantile
+        # cleanDict = {k:v for k,v in mwDict.items() if v > 10}
+        sDict = sorted(mwDict, key=mwDict.get)
+        for word in sDict:
+            # print(value)
+            proportion = mwDict[word] / member.m_ammount
+            if word not in pDict.keys():
+                pDict[word] = {member : proportion}
+            else:
+                pDict[word][member] = proportion
+    rareList = []
+
+    for word, mlist in pDict.items():
+        maxMember = max(mlist, key=mlist.get)
+        maxValue = mlist[maxMember]
+        avPctg = 0
+        for _, value in mlist.items():
+            avPctg += value
+        avPctg /= len(mlist)+1
+        rarenessValue = (maxValue - avPctg) / avPctg
+        rareList.append([word,maxMember,rarenessValue])
+    rareList.sort(key=lambda x: x[2],reverse=True)
+    uniqueWordPerUser = {}
+    for rare in rareList:
+        timesUsedTotal = sum(mDict[member].get(rare[0],0) for member in mDict.keys())
+        timesUsedChatter = mDict[rare[1]][rare[0]]
+        if rare[1].name not in uniqueWordPerUser.keys():
+            uniqueWordPerUser[rare[1].name] = [(rare[0],rare[2]*100, timesUsedTotal, timesUsedChatter, (timesUsedChatter / timesUsedTotal) * 100)]
+        elif len(uniqueWordPerUser[rare[1].name]) <= 5:
+            uniqueWordPerUser[rare[1].name].append((rare[0],rare[2]*100, timesUsedTotal, timesUsedChatter, (timesUsedChatter / timesUsedTotal) * 100))
+    return uniqueWordPerUser
+
+
+def filterChatByTime(dateStart: datetime, dateEnd: datetime, gc: Chat) -> Chat:
+    for member in gc.members:
+        newMessageList = []
+        for message in member.messages:
+            if (message.dtime >= dateStart) and (message.dtime <= dateEnd):
+                newMessageList.append(message)
+        gc.updateMessageListChat(msgl=newMessageList, member=member)
+    return gc
+
+
 if __name__ == "__main__":
-    print("This shouldn't be ran alone (and doesn't work)")
-    # gc = parseChat(messages)
-    # wordDict = mostWordsByChatter(gc)
-    # messageDict, holaList = mostMessagesByChatter(gc,["hola","alta gracia"])
-    # something = getUncommonWordsPerChatter(wordDict)
-    # print(something)
-    # print(holaList)
-    # print(messageDict)
+    print("This shouldn't be ran alone")

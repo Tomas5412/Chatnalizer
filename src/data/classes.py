@@ -119,6 +119,25 @@ class Member:
         if msg.wasEdited:
             self.editedMessages += 1
 
+    def updateMessageListMember(self, msgl: list[Message]):
+        del self.messages
+        self.messages = msgl
+        for type in MediaType: # Flush the MediaType dict.
+            self.mediaSent[type] = 0
+        self.editedMessages = 0
+        self.deletedMessages = 0
+    
+        for msg in msgl:
+            if msg.mType != MediaType.NONE:
+                self.mediaSent[msg.mType] += 1
+            if msg.wasDeleted:
+                self.deletedMessages += 1
+            if msg.wasEdited:
+                self.editedMessages += 1
+        self.m_ammount = len(msgl) # Refresh the message amount
+
+
+
     def __init__(self, id, name):
         self.id = id
         self.name = name
@@ -149,6 +168,11 @@ class Chat:
         message = Message(dt,content=msg, wE=wE, wD=wD, mT=mT)
         self.members[id].addMessageMember(message)
         self.messageAmount += 1
+
+    def updateMessageListChat(self, msgl: list[Message], member: Member):
+        self.messageAmount -= member.m_ammount
+        member.updateMessageListMember(msgl)
+        self.messageAmount += member.m_ammount
 
     def getOrMakeUserId(self, name:str):
         for i in range(len(self.members)):
