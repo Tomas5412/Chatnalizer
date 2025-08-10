@@ -1,6 +1,7 @@
+from misc.keywords import APP_KEYWORDS,LANGUAGES
 import tkinter as tk
-from tkinter import ttk, font
-from tkinter import Tk
+from tkinter import ttk
+# from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 from ChatFunctions.chatnalizer import analizeChat
 from os import path
@@ -13,15 +14,9 @@ THEME_NAME = "forest-dark"
 def getFile():
     filename.set(askopenfilename())
     if filename.get():
-        if language.get():
-            filenameDisplay.set("File: " + filename.get())
-        else:
-            filenameDisplay.set("Archivo: " + filename.get())
+        filenameDisplay.set(APP_KEYWORDS[LANGUAGES[languageV]]["file_display"] + filename.get())
     else:
-        if language.get():
-            filenameDisplay.set("No file selected.")
-        else:
-            filenameDisplay.set("No se eligió un archivo.")
+        filenameDisplay.set(APP_KEYWORDS[LANGUAGES[languageV]]["unselected_file"])
 
 
 def startChatnalisis():
@@ -58,44 +53,38 @@ try:
     # Set the theme with the theme_use method
     ttk.Style().theme_use(THEME_NAME)
 
-    # True = English. False = Spanish
-    language = tk.BooleanVar(value=True)
+    # 0 = English, 1 = Spanish
+    language = tk.IntVar(value=0)
+    languageV = language.get()
     aistate = tk.BooleanVar()
+    languageText = tk.StringVar(master=root,value=APP_KEYWORDS[LANGUAGES[languageV]]["change_language"])
+    aitext = tk.StringVar(master=root, value=APP_KEYWORDS[LANGUAGES[languageV]]["ai_exclusion"])
+    getFileText = tk.StringVar(master=root, value=APP_KEYWORDS[LANGUAGES[languageV]]["get_file_button"])
+    filenameDisplay = tk.StringVar(master=root, value=APP_KEYWORDS[LANGUAGES[languageV]]["unselected_file"])
+    chanalisisText = tk.StringVar(master=root,value=APP_KEYWORDS[LANGUAGES[languageV]]["analysis_button"])
+    warningText = tk.StringVar(master=root, value=APP_KEYWORDS[LANGUAGES[languageV]]["unsopported_language_warning"])
+    filename = tk.StringVar()
+    filename.set("")
 
-    languageText = tk.StringVar(master=root,value="Change language")
-    aitext = tk.StringVar(master=root, value="Exclude Meta AI")
-    getFileText = tk.StringVar(master=root, value="Get file")
-    filenameDisplay = tk.StringVar(master=root, value="No file selected.")
-    chanalisisText = tk.StringVar(master=root,value="Start Chatnalisis")
-    warningText = tk.StringVar(master=root, value="")
 
     def changeLanguage():
-        language.set(not language.get())
-        if language.get():
-            languageText.set("Change language")
-            chanalisisText.set("Start Chatnalisis")
-            aitext.set("Exclude Meta AI")
-            getFileText.set("Get file")
-            warningText.set("")
-            if filenameDisplay.get() == "No se eligió un archivo.":
-                filenameDisplay.set("No file selected.")
-            else:
-                filenameDisplay.set("File: " + filename.get())
+        language.set((language.get() + 1) % len(LANGUAGES))
+        languageV = language.get()
+        languageText.set(APP_KEYWORDS[LANGUAGES[languageV]]["change_language"])
+        aitext.set(APP_KEYWORDS[LANGUAGES[languageV]]["ai_exclusion"])
+        getFileText.set(APP_KEYWORDS[LANGUAGES[languageV]]["get_file_button"])
+        chanalisisText.set(APP_KEYWORDS[LANGUAGES[languageV]]["analysis_button"])
+        warningText.set(APP_KEYWORDS[LANGUAGES[languageV]]["unsopported_language_warning"])
+        if not filename.get():
+            filenameDisplay.set(APP_KEYWORDS[LANGUAGES[languageV]]["unselected_file"])
         else:
-            languageText.set("Cambiar lenguaje")
-            chanalisisText.set("Empezar Chatnálisis")
-            getFileText.set("Obtener archivo")
-            aitext.set("Excluir a Meta AI")
-            warningText.set("Todavía no hay soporte de Chatnálisis en español.\nEl resultado estará en inglés.")
-            if filenameDisplay.get() == "No file selected.": 
-                filenameDisplay.set("No se eligió un archivo.")
-            else:
-                filenameDisplay.set("Archivo: " + filename.get())
+            filenameDisplay.set(APP_KEYWORDS[LANGUAGES[languageV]]["file_display"] + filename.get())
+
+
+
 
 
     # Buttons
-    filename = tk.StringVar()
-    filename.set("")
     
     button1 = ttk.Button(root, textvariable=getFileText, command=getFile)
     fileText = ttk.Label(root,textvariable=filenameDisplay)
