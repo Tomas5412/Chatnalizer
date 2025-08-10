@@ -1,13 +1,15 @@
 from misc.classes import Chat, datetime
-from ChatFunctions.chatparser import parseChat
 from misc.keywords import WORDS_TO_IGNORE, MESSAGES_TO_IGNORE
 from unicodedata import category
+import emoji
 
 def mostWordsByChatter(chat: Chat):
     members = chat.members
     globalWordDict = {}
+    globalEmojiDict = {}
     for member in members:
         wordDict = {}
+        emojiDict = {}
         messages = member.messages
         for message in messages:
             actualMessage = str(message.content)
@@ -17,11 +19,14 @@ def mostWordsByChatter(chat: Chat):
             for word in actualMessage:
                 word = word.lower()
                 if word not in WORDS_TO_IGNORE:
-                    if word not in wordDict.keys():
-                        wordDict[word] = 1
-                    else:
-                        wordDict[word] += 1
+                    wordDict[word] = wordDict.get(word,0) + 1
+                    emojis = emoji.emoji_list(word)
+                    if emojis:
+                        for emojiData in emojis:
+                            actualEmoji = emojiData["emoji"]
+                            emojiDict[actualEmoji] = emojiDict.get(actualEmoji, 0) + 1
         globalWordDict[member] = wordDict
+        globalEmojiDict[member] = emojiDict
         # cleanWordDict = {k:v for k,v in wordDict.items() if v > 10}
         # print(wordDict)
         # sDict = sorted(cleanWordDict, key=cleanWordDict.get, reverse=True)
@@ -29,7 +34,7 @@ def mostWordsByChatter(chat: Chat):
         # for item in sDict:
         #     print(f"({item}, {cleanWordDict[item]}, {(cleanWordDict[item] / chat.messageAmount):.5f})")
         # print("="*120)
-    return globalWordDict
+    return globalWordDict, globalEmojiDict
 
 
 def mostMessagesByChatter(chat: Chat, wordList = []):
@@ -39,7 +44,7 @@ def mostMessagesByChatter(chat: Chat, wordList = []):
         wordList = [m.lower() for m in wordList]
         wordListCount = {member.name : {m:0 for m in wordList} for member in members}
     else:
-        wordListCount = []
+        wordListCount = {}
     for member in members:
         mDict = {}
         messages = member.messages
@@ -150,4 +155,12 @@ def filterChatByTime(dateStart: datetime, dateEnd: datetime, gc: Chat) -> Chat:
 
 
 if __name__ == "__main__":
-    print("This shouldn't be run alone")
+    print("This shouldn't be run alone.")
+    # gc = parseChat(messages)
+    # mostWords, mostEmojis = mostWordsByChatter(gc)
+    # for member in mostEmojis.keys():
+    #     if mostEmojis[member]:
+    #         maxVal = max(mostEmojis[member], key=mostEmojis[member].get)
+    #         print(f"{member.name}'s most used emoji is {maxVal} ({mostEmojis[member][maxVal]} times.)")
+    #     else:
+    #         print(f"{member.name} has not sent any emojis")

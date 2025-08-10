@@ -26,21 +26,21 @@ def getFile():
 
 def startChatnalisis():
     try:
-        message = analizeChat(filename.get())
+        message = analizeChat(filename.get(), excludeAI=aistate.get())
         filepath = path.join(path.abspath(""),f"results_{path.basename(filename.get())}")
         with open(filepath, "w+") as f:
             f.write(message)
             f.close
         if language.get():
-            warningText.set(f"Chatnalisis completed! Read it at {filepath}")
+            warningText.set(f"Chatnalisis completed!\nRead it at {filepath}")
         else:
-            warningText.set(f"Chatnálisis completado! Se encuentra en {filepath}")
+            warningText.set(f"Chatnálisis completado!\nSe encuentra en {filepath}")
     except Exception as e:
         warningText.set(e)
 
 
 root = tk.Tk()
-root.title("Chatnalizer (PROTOTYPE) version 0.1")
+root.title("Chatnalizer (PROTOTYPE) version 0.2")
 root.option_add("*tearOff", False)
 
 root.columnconfigure(index=0, weight=1)
@@ -49,6 +49,8 @@ root.columnconfigure(index=2, weight=1)
 root.rowconfigure(index=0, weight=1)
 root.rowconfigure(index=1, weight=1)
 root.rowconfigure(index=2, weight=1)
+root.rowconfigure(index=3, weight=1)
+root.rowconfigure(index=4, weight=1)
 
 # Import the tcl file
 try:
@@ -57,10 +59,11 @@ try:
     ttk.Style().theme_use(THEME_NAME)
 
     # True = English. False = Spanish
-    language = tk.BooleanVar()
-    language.set(True)
+    language = tk.BooleanVar(value=True)
+    aistate = tk.BooleanVar()
 
     languageText = tk.StringVar(master=root,value="Change language")
+    aitext = tk.StringVar(master=root, value="Exclude Meta AI")
     getFileText = tk.StringVar(master=root, value="Get file")
     filenameDisplay = tk.StringVar(master=root, value="No file selected.")
     chanalisisText = tk.StringVar(master=root,value="Start Chatnalisis")
@@ -71,6 +74,7 @@ try:
         if language.get():
             languageText.set("Change language")
             chanalisisText.set("Start Chatnalisis")
+            aitext.set("Exclude Meta AI")
             getFileText.set("Get file")
             warningText.set("")
             if filenameDisplay.get() == "No se eligió un archivo.":
@@ -81,7 +85,8 @@ try:
             languageText.set("Cambiar lenguaje")
             chanalisisText.set("Empezar Chatnálisis")
             getFileText.set("Obtener archivo")
-            warningText.set("Todavía no hay soporte de Chatnálisis en español: el resultado estará en inglés.")
+            aitext.set("Excluir a Meta AI")
+            warningText.set("Todavía no hay soporte de Chatnálisis en español.\nEl resultado estará en inglés.")
             if filenameDisplay.get() == "No file selected.": 
                 filenameDisplay.set("No se eligió un archivo.")
             else:
@@ -96,14 +101,20 @@ try:
     fileText = ttk.Label(root,textvariable=filenameDisplay)
     button2 = ttk.Button(root, textvariable=chanalisisText, command=startChatnalisis,  style="Accent.TButton")
     
-    button1.pack(padx=200,pady=(40,1))
-    fileText.pack(padx=1,pady=1)
-    button2.pack(padx=200,pady=(40,1))
+    button1.grid(row=0,column=1,padx=(0,0), pady=(30,5))
+    fileText.grid(row=1,column=1,padx=(0,0),pady=(0,30))
+    button2.grid(row=2,column=1,padx=(140,140),pady=(10,5))
     warningLabel = ttk.Label(root, textvariable=warningText, justify="center")
-    warningLabel.pack(padx=1,pady=(10,40))
+    warningLabel.grid(row=3,column=1,padx=(30,30),pady=(0,40))
+
+    aibutton = ttk.Checkbutton(root,textvariable=aitext,variable=aistate)
+    aibutton.grid(row=4,column=0,padx=(15,30),pady=(20,15))
 
     languagebutton = ttk.Button(root, textvariable=languageText,command=changeLanguage)
-    languagebutton.pack(padx=(370,50),pady=(10,15))
+    languagebutton.grid(row=4,column=2,padx=(0,15),pady=(00,00))
+    
+    root.update()
+    root.minsize(root.winfo_width(), root.winfo_height())
 
 except Exception as e: # Make sure the application actualy shows something!
     errorText = ttk.Label(root, text=e)
