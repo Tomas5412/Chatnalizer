@@ -24,29 +24,38 @@ APP_KEYWORDS = {
         "change_language" : "Cambiar lenguaje",
         "get_file_button" : "Buscar Archivo",
         "analysis_button" : "Chatnalizar!",
+        "analysis_complete" : "Chatnálisis completado!\nSe encuentra en ",
         "unsopported_language_warning" : "Todavía no hay soporte de Chatnálisis en español!\nEl resultado estará en inglés.",
         "unselected_file" : "No se eligió un archivo.",
         "ai_exclusion" : "Excluir a Meta AI",
-        "file_display" : "Archivo: "
+        "file_display" : "Archivo: ",
+        "date_start" : "Desde:",
+        "date_end" : "Hasta:"
 
     },
     "ENGLISH" : {
         "change_language" : "Change language",
         "get_file_button" : "Get file",
         "analysis_button" : "Chatnalize!",
+        "analysis_complete" : "Chatnalisis completed!\nRead it at ",
         "unsopported_language_warning" : "",
         "unselected_file" : "Please select a file.",
         "ai_exclusion" : "Exclude Meta AI",
-        "file_display" : "File: "
+        "file_display" : "File: ",
+        "date_start" : "Since:",
+        "date_end" : "Up to:"
     },
     "PORTUGUESE" : {
         "change_language" : "Alterar idioma",
         "get_file_button" : "Obter arquivo",
         "analysis_button" : "Chatnalisar!",
+        "analysis_complete" : "Chatnálise concluída!\n Localizado em ",
         "unsopported_language_warning" : "Não há suporte em português!\nOs resultados serão em inglês.",
         "unselected_file" : "Selecione arquivo.",
         "ai_exclusion" : "Excluda Meta AI",
-        "file_display" : "Arquivo: "
+        "file_display" : "Arquivo: ",
+        "date_start" : "De:",
+        "date_end" : "Até:"
     }
 }
 

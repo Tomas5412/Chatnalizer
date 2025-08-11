@@ -18,7 +18,7 @@ def mostWordsByChatter(chat: Chat):
             actualMessage = actualMessage.split()
             for word in actualMessage:
                 word = word.lower()
-                if word not in WORDS_TO_IGNORE:
+                if word and word not in WORDS_TO_IGNORE:
                     wordDict[word] = wordDict.get(word,0) + 1
                     emojis = emoji.emoji_list(word)
                     if emojis:
@@ -27,13 +27,6 @@ def mostWordsByChatter(chat: Chat):
                             emojiDict[actualEmoji] = emojiDict.get(actualEmoji, 0) + 1
         globalWordDict[member] = wordDict
         globalEmojiDict[member] = emojiDict
-        # cleanWordDict = {k:v for k,v in wordDict.items() if v > 10}
-        # print(wordDict)
-        # sDict = sorted(cleanWordDict, key=cleanWordDict.get, reverse=True)
-        # print(f"{"="*50} Messages by {member}:" + "="*50)
-        # for item in sDict:
-        #     print(f"({item}, {cleanWordDict[item]}, {(cleanWordDict[item] / chat.messageAmount):.5f})")
-        # print("="*120)
     return globalWordDict, globalEmojiDict
 
 
@@ -52,8 +45,7 @@ def mostMessagesByChatter(chat: Chat, wordList = []):
             actualMessage = str(message.content)
             actualMessage = "".join(ch for ch in actualMessage if category(ch)[0] != "C")
             actualMessage = actualMessage.lower()
-            # print(actualMessage)
-            if actualMessage not in MESSAGES_TO_IGNORE:
+            if actualMessage and actualMessage not in MESSAGES_TO_IGNORE:
                 if actualMessage not in mDict.keys():
                     mDict[actualMessage] = 1
                 else:
@@ -62,13 +54,6 @@ def mostMessagesByChatter(chat: Chat, wordList = []):
                 if word in actualMessage:
                     wordListCount[member.name][word] += 1
         globalMessageDict[member] = mDict
-        # cleanMDict = {k:v for k,v in mDict.items() if v > 5}
-        # print(cleanMDict)
-        # sDict = sorted(cleanMDict, key=cleanMDict.get, reverse=True)
-        # print(f"{"="*50} Messages by {member.name}:" + "="*50)
-        # for item in sDict:
-        #     print(f"({item}, {cleanMDict[item]}, {(cleanMDict[item] / chat.messageAmount):.5f})")
-        # print("="*120)
     return globalMessageDict, wordListCount
 
 
@@ -111,11 +96,9 @@ def getUncommonMessagesPerChatter(mDict):
     pDict = {} # Proportion dict!
     for member, mwDict in mDict.items():
         n = len(mwDict)
-        third_q = int(3*n/4) # Third quantile
-        # cleanDict = {k:v for k,v in mwDict.items() if v > 10}
+        # third_q = int(3*n/4) # Third quantile (Not useful anymore)
         sDict = sorted(mwDict, key=mwDict.get)
         for word in sDict:
-            # print(value)
             proportion = mwDict[word] / member.m_ammount
             if word not in pDict.keys():
                 pDict[word] = {member : proportion}
@@ -144,7 +127,8 @@ def getUncommonMessagesPerChatter(mDict):
     return uniqueWordPerUser
 
 
-def filterChatByTime(dateStart: datetime, dateEnd: datetime, gc: Chat) -> Chat:
+# Deprecated!
+def filterChatByTime(gc: Chat, dateStart: datetime, dateEnd: datetime) -> Chat:
     for member in gc.members:
         newMessageList = []
         for message in member.messages:
@@ -156,11 +140,3 @@ def filterChatByTime(dateStart: datetime, dateEnd: datetime, gc: Chat) -> Chat:
 
 if __name__ == "__main__":
     print("This shouldn't be run alone.")
-    # gc = parseChat(messages)
-    # mostWords, mostEmojis = mostWordsByChatter(gc)
-    # for member in mostEmojis.keys():
-    #     if mostEmojis[member]:
-    #         maxVal = max(mostEmojis[member], key=mostEmojis[member].get)
-    #         print(f"{member.name}'s most used emoji is {maxVal} ({mostEmojis[member][maxVal]} times.)")
-    #     else:
-    #         print(f"{member.name} has not sent any emojis")

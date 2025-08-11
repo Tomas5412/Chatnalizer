@@ -36,7 +36,6 @@ def parseHeaderAndriod(dateDiv, nameDiv, dType= DATE_TYPE.DDMMYY):
 
     day = int(day)
     month = int(month)
-    # print(day, month, year, hour, minute)
 
     name = nameDiv[1:-1]
     if dType == DATE_TYPE.MMDDYY:
@@ -126,7 +125,7 @@ def parseAction(header:str, fType:FORMAT_TYPE):
     #TODO: GET THIS TO WORK AAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     
     if fType == FORMAT_TYPE.IPHONE: raise ValueError(f"Action found ({header}) in unsopported format type.")
-    return 0,0,0,0,0,"",None
+    return 1,1,1,1,1,"",ActionType.PIN,None
 
 def parseMessage(message:str, kwords:dict=SPANISH_KEYWORDS):
     parsedMsg = message[1:]
@@ -159,15 +158,13 @@ def parseMessage(message:str, kwords:dict=SPANISH_KEYWORDS):
     return edited, deleted, mType, parsedMsg
 
 
-def parseChat(data, language:str="SPANISH") -> Chat:
+def parseChat(data, dStart: datetime, dEnd: datetime, language:str="SPANISH") -> Chat:
     groupChat = Chat()
     match language:
         case "SPANISH":
             languageDict = SPANISH_KEYWORDS
     # First message is always null?
     chat = data[1:]
-    # messageCounter = 0
-    # eventCounter = 0
     events = []
     format = FORMAT_TYPE.ANDROID
     if(chat[0][0] == "["): 
@@ -185,15 +182,16 @@ def parseChat(data, language:str="SPANISH") -> Chat:
         if header[-1] == ":": 
             day, month, year, hour, minute, name = parseHeader(header, format)
             dtime = datetime(day=day,month=month,year=year,hour=hour,minute=minute)
-            userId = groupChat.getOrMakeUserId(name)
-            wE,wD,mType, Pmessage = parseMessage(message,languageDict)
-            groupChat.addMessageChat(dtime, Pmessage, userId, wE, wD, mType)
+            if (dtime >= dStart) and (dtime <= dEnd):
+                userId = groupChat.getOrMakeUserId(name)
+                wE,wD,mType, Pmessage = parseMessage(message,languageDict)
+                groupChat.addMessageChat(dtime, Pmessage, userId, wE, wD, mType)
 
-        else:
-            day, month, year, hour, minute, name, type, target = parseAction(header, format)
-            userId = groupChat.getOrMakeUserId(name)
-            dtime = datetime(day=day,month=month,year=year,hour=hour,minute=minute)
-            groupChat.addActionChat(dt=dtime,id=userId,atype=type,target=target)
+#        else:
+            # day, month, year, hour, minute, name, type, target = parseAction(header, format)
+            # userId = groupChat.getOrMakeUserId(name)
+            # dtime = datetime(day=day,month=month,year=year,hour=hour,minute=minute)
+            # groupChat.addActionChat(dt=dtime,id=userId,atype=type,target=target)
 
     return groupChat
 

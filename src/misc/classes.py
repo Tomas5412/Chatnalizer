@@ -7,8 +7,8 @@ class FORMAT_TYPE(Enum):
     OLD = -1
 
 class DATE_TYPE(Enum):
-    MMDDYY = 0
-    DDMMYY = 1
+    MMDDYY = "MM/DD/YY"
+    DDMMYY = "DD/MM/YY"
 
 class ActionType(Enum):
     ADDITION = "addition" #Addition of other
@@ -123,6 +123,7 @@ class Member:
         self.a_ammount += 1
         self.actions.append(act)
 
+    # Deprecated function.
     def updateMessageListMember(self, msgl: list[Message]):
         del self.messages
         self.messages = msgl
@@ -173,6 +174,7 @@ class Chat:
         self.members[id].addMessageMember(message)
         self.messageAmount += 1
 
+    # Deprecated function.
     def updateMessageListChat(self, msgl: list[Message], member: Member):
         self.messageAmount -= member.m_ammount
         member.updateMessageListMember(msgl)

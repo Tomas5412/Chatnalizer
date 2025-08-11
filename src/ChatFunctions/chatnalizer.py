@@ -1,13 +1,11 @@
 from ChatFunctions.chatparser import parseChat
 from ChatFunctions.chatfetcher import chatFetch
 from ChatFunctions.chatnalisis import *
-from tkinter import Tk
-from tkinter.filedialog import askopenfilename
 from os import path
 from misc.classes import MediaType
 
 
-def analizeChat(filename: str, excludeAI: bool = False) -> str:
+def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI:bool) -> str:
     if not filename: raise ValueError("File not selected.")
     _, ext = path.splitext(filename)
     if ext != ".txt":
@@ -17,7 +15,8 @@ def analizeChat(filename: str, excludeAI: bool = False) -> str:
         if messages == []:
             message = "Either the file is empty, or there was an error fetching the file."
         else:
-            groupChat = parseChat(messages)
+            groupChat = parseChat(messages, dStart=dateStart, dEnd=dateEnd)
+            # groupChat = filterChatByTime(groupChat, dateStart=dateStart, dateEnd=dateEnd)
             wordCount, emojiCount = mostWordsByChatter(groupChat)
             uniqueWord = getUncommonWordsPerChatter(wordCount)
             messageCount, _ = mostMessagesByChatter(groupChat)
