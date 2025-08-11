@@ -1,9 +1,7 @@
 # coding=utf-8
 
-# import matplotlib.pyplot as plt
 from os import path
 import re
-# import emoji
 
 CHAT_PATTERN = r'^([0-9]{1,2}/[0-9]{1,2}/[0-9]{4}, [0-9]{2}:[0-9]{2} - [^:\n]+[:\n])'
 

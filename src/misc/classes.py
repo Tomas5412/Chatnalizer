@@ -119,6 +119,10 @@ class Member:
         if msg.wasEdited:
             self.editedMessages += 1
 
+    def addActionMember(self, act:Action):
+        self.a_ammount += 1
+        self.actions.append(act)
+
     def updateMessageListMember(self, msgl: list[Message]):
         del self.messages
         self.messages = msgl
@@ -181,6 +185,11 @@ class Chat:
                 return i
         id = self.addMember(name)
         return id
+    
+    def addActionChat(self, id: int, dt: datetime, atype: ActionType, target: str=None):
+        act = Action(dt=dt, type=atype,target=target)
+        self.members[id].addActionMember(act)
+        self.eventAmount += 1
     
     def __init__(self):
         self.members = []

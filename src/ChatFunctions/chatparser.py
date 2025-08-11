@@ -122,10 +122,13 @@ def parseHeader(header:str, fType:FORMAT_TYPE):
             day, month, year, hour, minute, name = parseHeaderOld(fDiv, sDiv)
             return day, month, year, hour, minute, name
 
-
+def parseAction(header:str, fType:FORMAT_TYPE):
+    #TODO: GET THIS TO WORK AAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    
+    if fType == FORMAT_TYPE.IPHONE: raise ValueError(f"Action found ({header}) in unsopported format type.")
+    return 0,0,0,0,0,"",None
 
 def parseMessage(message:str, kwords:dict=SPANISH_KEYWORDS):
-    # TODO: GET THIS TO WORK AAAAAAAAAAAAA
     parsedMsg = message[1:]
     deleted = False
     edited = False
@@ -143,6 +146,7 @@ def parseMessage(message:str, kwords:dict=SPANISH_KEYWORDS):
     for kword in kwords["TEMPORAL_MEDIA"]:
         if kword == parsedMsg:
             mType = MediaType.T_MEDIA
+            parsedMsg = ""
     for kword in kwords["MEDIA_MSG"]:
         if kword in parsedMsg:
             #Found one!
@@ -151,7 +155,7 @@ def parseMessage(message:str, kwords:dict=SPANISH_KEYWORDS):
                     for ext in FILENAME_EXTENSIONS[type]:
                         if ext in parsedMsg:
                             mType = type
-                            parsedMsg = parsedMsg[:-(len(kword)+1)]
+                            parsedMsg = parsedMsg.replace(kword,"")
     return edited, deleted, mType, parsedMsg
 
 
@@ -179,16 +183,17 @@ def parseChat(data, language:str="SPANISH") -> Chat:
         header = chat[i]
         message = chat[i+1]
         if header[-1] == ":": 
-            # messageCounter += 1
             day, month, year, hour, minute, name = parseHeader(header, format)
             dtime = datetime(day=day,month=month,year=year,hour=hour,minute=minute)
-            wE,wD,mType, Pmessage = parseMessage(message,languageDict)
             userId = groupChat.getOrMakeUserId(name)
+            wE,wD,mType, Pmessage = parseMessage(message,languageDict)
             groupChat.addMessageChat(dtime, Pmessage, userId, wE, wD, mType)
 
-        else: 
-            # eventCounter += 1
-            events.append(header)
+        else:
+            day, month, year, hour, minute, name, type, target = parseAction(header, format)
+            userId = groupChat.getOrMakeUserId(name)
+            dtime = datetime(day=day,month=month,year=year,hour=hour,minute=minute)
+            groupChat.addActionChat(dt=dtime,id=userId,atype=type,target=target)
 
     return groupChat
 
