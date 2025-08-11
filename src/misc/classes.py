@@ -7,8 +7,8 @@ class FORMAT_TYPE(Enum):
     OLD = -1
 
 class DATE_TYPE(Enum):
-    MMDDYY = "MM/DD/YY"
     DDMMYY = "DD/MM/YY"
+    MMDDYY = "MM/DD/YY"
 
 class ActionType(Enum):
     ADDITION = "addition" #Addition of other

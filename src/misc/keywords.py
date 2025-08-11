@@ -30,7 +30,8 @@ APP_KEYWORDS = {
         "ai_exclusion" : "Excluir a Meta AI",
         "file_display" : "Archivo: ",
         "date_start" : "Desde:",
-        "date_end" : "Hasta:"
+        "date_end" : "Hasta:",
+        "analyzing" : "...Chatnalizando..."
 
     },
     "ENGLISH" : {
@@ -43,7 +44,8 @@ APP_KEYWORDS = {
         "ai_exclusion" : "Exclude Meta AI",
         "file_display" : "File: ",
         "date_start" : "Since:",
-        "date_end" : "Up to:"
+        "date_end" : "Up to:",
+        "analyzing" : "...Chatnalizing..."
     },
     "PORTUGUESE" : {
         "change_language" : "Alterar idioma",
@@ -55,7 +57,8 @@ APP_KEYWORDS = {
         "ai_exclusion" : "Excluda Meta AI",
         "file_display" : "Arquivo: ",
         "date_start" : "De:",
-        "date_end" : "Até:"
+        "date_end" : "Até:",
+        "analyzing" : "...Chatnalisando..."
     }
 }
 

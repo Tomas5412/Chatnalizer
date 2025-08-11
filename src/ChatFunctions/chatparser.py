@@ -15,7 +15,7 @@ def splitDateNameByFormat(header: str, fType:FORMAT_TYPE):
             return division.split("]",maxsplit=1)
 
 
-def parseHeaderAndriod(dateDiv, nameDiv, dType= DATE_TYPE.DDMMYY):
+def parseHeaderAndriod(dateDiv, nameDiv, dType:str= "DD/MM/YY"):
     day = ""
     day += (dateDiv[0])
     if dateDiv[1] in ["0","1","2","3","4","5","6","7","8","9"]: # ? I know how awful this is, but isDigit(dateDiv[1]) doesn't work.
@@ -38,7 +38,7 @@ def parseHeaderAndriod(dateDiv, nameDiv, dType= DATE_TYPE.DDMMYY):
     month = int(month)
 
     name = nameDiv[1:-1]
-    if dType == DATE_TYPE.MMDDYY:
+    if dType == DATE_TYPE.MMDDYY.value:
         return month, day, year, hour, minute, name
     else: return day, month, year, hour, minute, name
 
@@ -94,7 +94,6 @@ def parseHeaderOld(dateDiv, nameDiv, dType=DATE_TYPE.DDMMYY):
     else: dateDiv = dateDiv[2:]
 
     year = int(dateDiv[0:5])
-
     day = int(day)
     month = int(month)
 
@@ -106,19 +105,19 @@ def parseHeaderOld(dateDiv, nameDiv, dType=DATE_TYPE.DDMMYY):
     else: return day, month, year, hour, minute, name
 
 
-def parseHeader(header:str, fType:FORMAT_TYPE):
+def parseHeader(header:str, fType:FORMAT_TYPE, dtype:str):
     divisions = splitDateNameByFormat(header,fType)
     fDiv = divisions[0]
     sDiv = divisions[1]
     match fType:
         case FORMAT_TYPE.ANDROID:
-            day, month, year, hour, minute, name = parseHeaderAndriod(fDiv, sDiv)
+            day, month, year, hour, minute, name = parseHeaderAndriod(fDiv, sDiv, dType=dtype)
             return day, month, year, hour, minute, name
         case FORMAT_TYPE.IPHONE:
-            day, month, year, hour, minute, name = parseHeaderIphone(fDiv, sDiv)
+            day, month, year, hour, minute, name = parseHeaderIphone(fDiv, sDiv, dType=dtype)
             return day, month, year, hour, minute, name
         case FORMAT_TYPE.OLD:
-            day, month, year, hour, minute, name = parseHeaderOld(fDiv, sDiv)
+            day, month, year, hour, minute, name = parseHeaderOld(fDiv, sDiv, dType=dtype)
             return day, month, year, hour, minute, name
 
 def parseAction(header:str, fType:FORMAT_TYPE):
@@ -158,7 +157,7 @@ def parseMessage(message:str, kwords:dict=SPANISH_KEYWORDS):
     return edited, deleted, mType, parsedMsg
 
 
-def parseChat(data, dStart: datetime, dEnd: datetime, language:str="SPANISH") -> Chat:
+def parseChat(data, dStart: datetime, dEnd: datetime, language:str="SPANISH", dateType: str="DD/MM/YY") -> Chat:
     groupChat = Chat()
     match language:
         case "SPANISH":
@@ -180,7 +179,7 @@ def parseChat(data, dStart: datetime, dEnd: datetime, language:str="SPANISH") ->
         header = chat[i]
         message = chat[i+1]
         if header[-1] == ":": 
-            day, month, year, hour, minute, name = parseHeader(header, format)
+            day, month, year, hour, minute, name = parseHeader(header, format, dateType)
             dtime = datetime(day=day,month=month,year=year,hour=hour,minute=minute)
             if (dtime >= dStart) and (dtime <= dEnd):
                 userId = groupChat.getOrMakeUserId(name)

@@ -27,18 +27,20 @@ def startChatnalisis():
             dStart = dateStart.get_date()
             dStart = dt.datetime(day=dStart.day, month=dStart.month, year=dStart.year, hour=0, minute=0)
         except Exception as e:
-            print(e)
+            print(f"Exception in date fetch '{e}'. defaulting to no lower bound.")
             dStart = dt.datetime(2009,2,1)
         try:
             dEnd = dateEnd.get_date()
             dEnd = dt.datetime(day=dEnd.day, month=dEnd.month, year=dEnd.year, hour=23, minute=59)
         except Exception as e:
-            print(e)
+            print(f"Exception in date fetch '{e}'. defaulting to no upper bound.")
             dEnd = dt.datetime.now()
 
         if dEnd < dStart: raise ValueError("End date occurs sooner than start, sillyhead!")
 
-        message = analizeChat(filename.get(), excludeAI=aistate.get(), dateStart=dStart, dateEnd=dEnd)
+        dType = dateFormat.get()
+        if dType not in [t.value for t in DATE_TYPE]: dType = "DD/MM/YY"
+        message = analizeChat(filename.get(), excludeAI=aistate.get(), dateStart=dStart, dateEnd=dEnd, dateType=dType)
         filepath = path.join(path.abspath(""),f"results_{path.basename(filename.get())}")
         with open(filepath, "w+") as f:
             f.write(message)
@@ -120,7 +122,6 @@ try:
     wordListAdder.grid(row=0,column=0, padx=10, pady=10)
 
     def enableStart():
-        # dStartState.set(not dStartState.get())
         if dStartState.get():
             dateStart.config(state="normal")
             dateStart.set_date(dt.date.today())
@@ -129,7 +130,6 @@ try:
         return
     
     def enableEnd():
-        # dEndState.set(not dEndState.get())
         if dEndState.get():
             dateEnd.config(state="normal")
             dateEnd.set_date(dt.date.today())
@@ -137,12 +137,13 @@ try:
             dateEnd.config(state="disabled")
         return
     
-    dateStart = tkc.DateEntry(root, mindate=dt.date(2009,2,1), maxdate=dt.datetime.now(), showothermonthdays=False, date_pattern="dd/mm/yy", state="disabled")
-    dateEnd = tkc.DateEntry(root, mindate=dt.date(2009,2,1), maxdate=dt.datetime.now(), showothermonthdays=False, date_pattern="dd/mm/yy", state="disabled")
+    dateStart = tkc.DateEntry(root, mindate=dt.date(2009,2,1), maxdate=dt.datetime.now(), showothermonthdays=False, date_pattern="dd/mm/yy", state="disabled", showweeknumbers=False)
+    dateEnd = tkc.DateEntry(root, mindate=dt.date(2009,2,1), maxdate=dt.datetime.now(), showothermonthdays=False, date_pattern="dd/mm/yy", state="disabled", showweeknumbers=False)
     dStartButton = ttk.Checkbutton(root, textvariable=dStartText, variable=dStartState, command=enableStart)
     dEndButton = ttk.Checkbutton(root, textvariable=dEndText, command=enableEnd, variable= dEndState)
 
     dateFormat = ttk.Combobox(root,textvariable=dateFormatText, state="readonly",values=[fmt.value for fmt in DATE_TYPE])
+    
     dateFormat.grid(row=4,column=0, padx=(20,0),pady=(20,0))
 
 
@@ -157,8 +158,6 @@ try:
     dStartButton.grid(row=1, column=0,pady=(0,30))
     dEndButton.grid(row=3,column=0,pady=(0,20))
 
-
-    
     
     root.update()
     root.minsize(root.winfo_width(), root.winfo_height())

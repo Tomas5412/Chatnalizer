@@ -1,11 +1,18 @@
 from ChatFunctions.chatparser import parseChat
 from ChatFunctions.chatfetcher import chatFetch
 from ChatFunctions.chatnalisis import *
+from misc.classes import DATE_TYPE
 from os import path
 from misc.classes import MediaType
 
 
-def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI:bool) -> str:
+def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI:bool, dateType: str) -> str:
+    for dt in DATE_TYPE:
+        if dateType == dt.value:
+            break
+    else:
+        raise ValueError("Date format not selected.")
+
     if not filename: raise ValueError("File not selected.")
     _, ext = path.splitext(filename)
     if ext != ".txt":
@@ -15,7 +22,7 @@ def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI
         if messages == []:
             message = "Either the file is empty, or there was an error fetching the file."
         else:
-            groupChat = parseChat(messages, dStart=dateStart, dEnd=dateEnd)
+            groupChat = parseChat(messages, dStart=dateStart, dEnd=dateEnd, dateType=dateType)
             # groupChat = filterChatByTime(groupChat, dateStart=dateStart, dateEnd=dateEnd)
             wordCount, emojiCount = mostWordsByChatter(groupChat)
             uniqueWord = getUncommonWordsPerChatter(wordCount)
