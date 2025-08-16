@@ -3,7 +3,7 @@ from misc.keywords import WORDS_TO_IGNORE, MESSAGES_TO_IGNORE
 from unicodedata import category
 import emoji
 
-def mostWordsByChatter(chat: Chat):
+def mostWordsByChatter(chat: Chat, caseSensitive: bool):
     members = chat.members
     globalWordDict = {}
     globalEmojiDict = {}
@@ -17,8 +17,9 @@ def mostWordsByChatter(chat: Chat):
             # print(actualMessage)
             actualMessage = actualMessage.split()
             for word in actualMessage:
-                word = word.lower()
-                if word and word not in WORDS_TO_IGNORE:
+                if not caseSensitive:
+                    word = word.lower()
+                if word and (word not in WORDS_TO_IGNORE):
                     wordDict[word] = wordDict.get(word,0) + 1
                     emojis = emoji.emoji_list(word)
                     if emojis:
@@ -30,12 +31,11 @@ def mostWordsByChatter(chat: Chat):
     return globalWordDict, globalEmojiDict
 
 
-def mostMessagesByChatter(chat: Chat, wordList = []):
+def mostMessagesByChatter(chat: Chat, wordList = [], caseSensitive:bool=True):
     members = chat.members
     globalMessageDict = {}
     if wordList:
-        wordList = [m.lower() for m in wordList]
-        wordListCount = {member.name : {m:0 for m in wordList} for member in members}
+        wordListCount = {member.name : {m : 0 for m in wordList} for member in members}
     else:
         wordListCount = {}
     for member in members:
@@ -44,15 +44,23 @@ def mostMessagesByChatter(chat: Chat, wordList = []):
         for message in messages:
             actualMessage = str(message.content)
             actualMessage = "".join(ch for ch in actualMessage if category(ch)[0] != "C")
-            actualMessage = actualMessage.lower()
-            if actualMessage and actualMessage not in MESSAGES_TO_IGNORE:
+
+            if not caseSensitive:
+                actualMessage = actualMessage.lower()
+            
+            if actualMessage and (actualMessage not in MESSAGES_TO_IGNORE):
                 if actualMessage not in mDict.keys():
                     mDict[actualMessage] = 1
                 else:
                     mDict[actualMessage] += 1
             for word in wordList:
-                if word in actualMessage:
-                    wordListCount[member.name][word] += 1
+                if caseSensitive:
+                    if word in actualMessage:
+                        wordListCount[member.name][word] += 1
+                else:
+                    if word.lower() in actualMessage:
+                        # print(word)
+                        wordListCount[member.name][word] += 1
         globalMessageDict[member] = mDict
     return globalMessageDict, wordListCount
 

@@ -31,7 +31,17 @@ APP_KEYWORDS = {
         "file_display" : "Archivo: ",
         "date_start" : "Desde:",
         "date_end" : "Hasta:",
-        "analyzing" : "...Chatnalizando..."
+        "analyzing" : "...Chatnalizando...",
+        "date_format" : "Formato de fecha",
+        "word_list_add" : "Añadir",
+        "word_list_show" : "Editar lista",
+        "no_word" : "La lista de frases está vacía.",
+        "destroy" : "Borrar",
+        "case_sensitive" : "Distinguir mayús. de minús.",
+        "include_media" : "Incluir análisis de media",
+        "media_warning" : "No se requieren los archivos.\nSolo que se haya exportado con media.",
+        "list_explainer" : "Cuenta la cantidad de veces\nque cada miembro dice la frase o palabra."
+
 
     },
     "ENGLISH" : {
@@ -45,7 +55,16 @@ APP_KEYWORDS = {
         "file_display" : "File: ",
         "date_start" : "Since:",
         "date_end" : "Up to:",
-        "analyzing" : "...Chatnalizing..."
+        "analyzing" : "...Chatnalizing...",
+        "date_format" : "Date format",
+        "word_list_add" : "Add",
+        "word_list_show" : "Edit list",
+        "no_word" : "No phrase in phrase list.",
+        "destroy" : "Delete",
+        "case_sensitive" : "Case sensitive",
+        "include_media" : "Include media analysis",
+        "media_warning" : "Actual files not required.\nOnly that it was exported with media.",
+        "list_explainer" : "Counts the number of times\neach member says the phrase or word."
     },
     "PORTUGUESE" : {
         "change_language" : "Alterar idioma",
@@ -58,7 +77,16 @@ APP_KEYWORDS = {
         "file_display" : "Arquivo: ",
         "date_start" : "De:",
         "date_end" : "Até:",
-        "analyzing" : "...Chatnalisando..."
+        "analyzing" : "...Chatnalisando...",
+        "date_format" : "Formato de data",
+        "word_list_add" : "Adicionar",
+        "word_list_show" : "Editar lista",
+        "no_word" : "A lista de frases está vazia",
+        "destroy" : "Excluir",
+        "case_sensitive" : "Distingue maiús. de minús.",
+        "include_media" : "Incluir análise de mídia",
+        "media_warning" : "Os arquivos não são necessários.\nBasta que tenham sido exportados con a mídia.",
+        "list_explainer" : "Conta o número de vezes\nque cada membro diz a frase ou palavra."
     }
 }
 

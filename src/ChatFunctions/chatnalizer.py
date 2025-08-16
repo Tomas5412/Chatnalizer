@@ -6,7 +6,8 @@ from os import path
 from misc.classes import MediaType
 
 
-def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI:bool, dateType: str) -> str:
+def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI:bool, caseSensitive:bool, phraseList, dateType: str) -> str:
+
     for dt in DATE_TYPE:
         if dateType == dt.value:
             break
@@ -23,10 +24,12 @@ def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI
             message = "Either the file is empty, or there was an error fetching the file."
         else:
             groupChat = parseChat(messages, dStart=dateStart, dEnd=dateEnd, dateType=dateType)
+
             # groupChat = filterChatByTime(groupChat, dateStart=dateStart, dateEnd=dateEnd)
-            wordCount, emojiCount = mostWordsByChatter(groupChat)
+            
+            wordCount, emojiCount = mostWordsByChatter(groupChat, caseSensitive)
             uniqueWord = getUncommonWordsPerChatter(wordCount)
-            messageCount, _ = mostMessagesByChatter(groupChat)
+            messageCount, phraseCount = mostMessagesByChatter(groupChat, phraseList, caseSensitive)
             uniqueMsg = getUncommonMessagesPerChatter(messageCount)
             message = ''
             message += f"{groupChat.messageAmount} messages were sent.\n"
@@ -59,6 +62,12 @@ def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI
                                 message += f"\t'{messageData[0]}' was said {(messageData[1]):.1f}% more than the average by this user. They said it {messageData[3]} times ({(messageData[4]):.2f}% of total usage)\n"
 
                     message += f"They sent {sum(user.mediaSent.values())} media files. {user.mediaSent[MediaType.STICKER]} of them were stickers and {user.mediaSent[MediaType.T_MEDIA]} were once media.\n"
+                    if caseSensitive:
+                        for phrase in phraseList:
+                            message += f"They said '{phrase}' {phraseCount[user.name][phrase]} times.\n"
+                    else:
+                        for phrase in phraseList:
+                            message += f"They said '{phrase.lower()}' {phraseCount[user.name][phrase]} times.\n"                        
                     message += "="*70 + "\n"
             # try:
             #     mostMessagesByChatter(groupChat)
