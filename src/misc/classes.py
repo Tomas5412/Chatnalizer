@@ -11,13 +11,15 @@ class DATE_TYPE(Enum):
     MMDDYY = "MM/DD/YY"
 
 class ActionType(Enum):
-    ADDITION = "addition" #Addition of other
-    S_ADDITION = "s_addition" #Addition of self "via link"
-    REMOVAL = "removal" #Removal of other
-    S_REMOVAL = "s_removal" #Self removal
-    D_CHANGE = "d_change" #Description change
-    I_CHANGE = "i_change" #Icon change
-    PIN = "pin"
+    ADDITION = "addition"
+    S_ADDITION = "Self adition" #Addition of self via group link
+    REMOVAL = "Removal"
+    S_REMOVAL = "Self removal"
+    D_CHANGE = "Description change"
+    I_CHANGE = "Icon change"
+    N_CHANGE = "Name change"
+    PIN = "Pin"
+    OTHER = "Other"
 
 class MediaType(Enum):
     VIDEO = "video"
@@ -46,19 +48,6 @@ FILENAME_EXTENSIONS = {
     MediaType.VIDEO : [".mp4"],
     MediaType.GIF : [".gif"],
 
-}
-
-
-SPANISH_KEYWORDS = {
-    "MEDIA_MSG" : ["(archivo adjunto)", "<adjunto:"],
-    "OMMITED_MEDIA" : ["<Multimedia omitido>\n", "\u200eaudio omitido\n",
-                        "\u200eimagen omitida\n", "\u200evideo omitido\n", "\u200esticker omitido\n"],
-    "TEMPORAL_MEDIA" : ["null\n", 
-                      "\u200eRecibiste un mensaje de visualización única. Para mayor privacidad, solo puedes abrirlo en tu teléfono.\n"],
-    "OTHER_MEDIA" : [ "\u200eNo se puede mostrar este mensaje aquí. Para verlo, abre WhatsApp en tu teléfono.\n",
-                     ],
-    "DELETED_MSG" : ["Se eliminó este mensaje.\n", "\u200eSe eliminó este mensaje.\n"],
-    "EDITED_MSG" : ["Se editó este mensaje."]
 }
 
 
@@ -106,6 +95,7 @@ class Member:
     a_ammount: int
     actions: list[Action]
     mediaSent: dict[MediaType, int]
+    actionsDone: dict[ActionType, int]
     deletedMessages : int
     editedMessages : int
 
@@ -121,6 +111,8 @@ class Member:
 
     def addActionMember(self, act:Action):
         self.a_ammount += 1
+        if act.type != ActionType.OTHER:
+            self.actionsDone[act.type] += 1
         self.actions.append(act)
 
     # Deprecated function.
@@ -151,6 +143,7 @@ class Member:
         self.a_ammount = 0
         self.actions = []
         self.mediaSent = {type:0 for type in MediaType}
+        self.actionsDone = {act:0 for act in ActionType}
         self.deletedMessages = 0
         self.editedMessages = 0
 

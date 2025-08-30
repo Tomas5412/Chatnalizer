@@ -1,4 +1,6 @@
+
 SPANISH_KEYWORDS = {
+    # Message stuff
     "MEDIA_MSG" : ["(archivo adjunto)"],
     "OMMITED_MEDIA" : ["<Multimedia omitido>", "audio omitido", "imagen omitida", "video omitido", "sticker omitido",],
     "TEMPORAL_MEDIA" : ["null", 
@@ -6,8 +8,32 @@ SPANISH_KEYWORDS = {
     "OTHER_MEDIA" : ["No se puede mostrar este mensaje aquí. Para verlo, abre WhatsApp en tu teléfono.",
                      ],
     "DELETED_MSG" : ["Se eliminó este mensaje."],
-    "EDITED_MSG" : ["<Se editó este mensaje.>"]
+    "EDITED_MSG" : ["<Se editó este mensaje.>"],
+    # Action stuff
+    "KICKED_MSG" : [" eliminó a "],
+    "ADDED_MSG" : [" añadió a "],
+    "PIN_MSG" : [" fijó un mensaje."],
+    "CHANGE_LOGO" : [" cambió el ícono de este grupo"],
+    "CHANGE_NAME" : [" cambió el nombre del grupo de "],
+    "CHANGE_DESCRIPTION" : [" cambió la descripción del grupo."],
+    "SELF_ADDITION" : [" se unió usando el enlace de invitación de este grupo"],
+    "SELF_DELETION" : [" salió del grupo."],
+    ## The "Author" is the one that exported the chat: their actions are in first person.
+    "AUTHOR_DELETING" : ["Eliminaste a "],
+    "AUTHOR_DELETION" : [" te eliminó."],
+    "AUTHOR_SELF_REMOVAL" : ["Saliste del grupo"],
+    "AUTHOR_ADDITION" : [" te añadió"],
+    "AUTHOR_ADDITION_UNKNOWN" : ["Se te añadió al grupo."],
+    "AUTHOR_S_ADDITION" : ["Te uniste mediante el enlace de invitación de este grupo."],
+    "AUTHOR_ADDING": ["Añadiste a "],
+    "AUTHOR_PIN" : ["Fijaste un mensaje."],
+
 }
+
+            # The "Author" is the one that exported the chat: their actions are in first person.
+AUTHOR_NAME = "AUTHOR RAAAAAAAAAA" 
+            # ... the scream is there to avoid name conflicts, since "AUTHOR" could be a valid contact name.
+
 
 FILENAME_EXTENSIONS = {
     "STICKER" : [".webp"],

@@ -1,9 +1,9 @@
 from ChatFunctions.chatparser import parseChat
 from ChatFunctions.chatfetcher import chatFetch
 from ChatFunctions.chatnalisis import *
-from misc.classes import DATE_TYPE
+from misc.classes import DATE_TYPE, MediaType, ActionType
 from os import path
-from misc.classes import MediaType
+from misc.keywords import AUTHOR_NAME
 
 
 def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI:bool, caseSensitive:bool, phraseList, dateType: str) -> str:
@@ -25,7 +25,6 @@ def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI
         else:
             groupChat = parseChat(messages, dStart=dateStart, dEnd=dateEnd, dateType=dateType)
 
-            # groupChat = filterChatByTime(groupChat, dateStart=dateStart, dateEnd=dateEnd)
             
             wordCount, emojiCount = mostWordsByChatter(groupChat, caseSensitive)
             uniqueWord = getUncommonWordsPerChatter(wordCount)
@@ -36,14 +35,11 @@ def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI
             message += "="*70 + "\n"
             mlist = groupChat.members
             for user in mlist:
-                if user.name != "Meta AI" or (not excludeAI):
+                if (user.name != "Meta AI" or (not excludeAI)) and user.name != AUTHOR_NAME:
                     message += f"{user.name} has sent {user.m_ammount} messages ({((user.m_ammount / groupChat.messageAmount)*100):.2f}%).\n"
-                    # if user.m_ammount > 5:
-                    #     for j in range(2):
-                    #         msg = user.messages[j]
-                    #         print(f"{msg.dtime} {user.name} - {repr(msg.content)}")
+
                     message += f"They deleted {user.deletedMessages} messages and edited {user.editedMessages}.\n"
-                    # print(user.mediaSent)
+
                     if messageCount[user]:
                         maxMsg = max(messageCount[user], key= messageCount[user].get)
                         message += f"Their most sent message was '{maxMsg}'. It was said {messageCount[user][maxMsg]} times.\n"
@@ -68,6 +64,11 @@ def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI
                     else:
                         for phrase in phraseList:
                             message += f"They said '{phrase.lower()}' {phraseCount[user.name][phrase]} times.\n"                        
+
+                    for action in ActionType:
+                        if user.actionsDone[action] > 1: 
+                            message += f"{action.value} action was done {user.actionsDone[action]} times.\n"
+                    
                     message += "="*70 + "\n"
             # try:
             #     mostMessagesByChatter(groupChat)

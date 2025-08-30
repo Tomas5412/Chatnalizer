@@ -1,4 +1,5 @@
 from misc.classes import *
+from misc.keywords import SPANISH_KEYWORDS, AUTHOR_NAME
 from datetime import datetime
 
 def splitDateNameByFormat(header: str, fType:FORMAT_TYPE):
@@ -15,7 +16,139 @@ def splitDateNameByFormat(header: str, fType:FORMAT_TYPE):
             return division.split("]",maxsplit=1)
 
 
-def parseHeaderAndriod(dateDiv, nameDiv, dType:str= "DD/MM/YY"):
+def getAction(actionDiv:str, kwords):
+    name = ""
+    victim = ""
+    aType = ActionType.OTHER
+
+    # This could've been a nested loop of ActionTypes (with the kwords keys being ActionTypes values)
+    # However, the parsing of names and victims is different according to each type of action.
+    # ? Perhaps there's a way to make this a nested loop, in a way that doesn't make the code completely unreadable
+
+    for kick in kwords["KICKED_MSG"]: 
+        if kick in actionDiv:
+                name = actionDiv.split(kick)[0]
+                victim = actionDiv.split(kick)[1]
+                aType = ActionType.REMOVAL
+
+    for add in kwords["ADDED_MSG"]:
+        if add in actionDiv:
+            name = actionDiv.split(add)[0]
+            victim = actionDiv.split(add)[1]
+            if victim[-1] == ".": victim = victim[:-1] # Some addition messages add an ending point. This is annoying and will cause edge bugs
+            aType = ActionType.ADDITION
+        
+    for pin in kwords["PIN_MSG"]:
+        if pin in actionDiv:
+            name = actionDiv.replace(pin,"")
+            victim = ""
+            aType = ActionType.PIN
+
+    for im_ch in kwords["CHANGE_LOGO"]:
+        if im_ch in actionDiv:
+            name = actionDiv.replace(im_ch,"")
+            victim = ""
+            aType = ActionType.I_CHANGE
+
+    for desc_ch in kwords["CHANGE_DESCRIPTION"]:
+        if desc_ch in actionDiv:
+            name = actionDiv.replace(desc_ch,"")
+            victim = ""
+            aType = ActionType.D_CHANGE
+
+    for name_ch in kwords["CHANGE_NAME"]:
+        if name_ch in actionDiv:
+            name = actionDiv.split(name_ch)[0]
+            victim = ""
+            aType = ActionType.N_CHANGE
+
+    for s_del in kwords["SELF_DELETION"]:
+        if s_del in actionDiv:
+            name = actionDiv.replace(s_del, "")
+            victim = ""
+            aType = ActionType.S_REMOVAL
+
+    for s_add in kwords["SELF_ADDITION"]:
+        if s_add in actionDiv:
+            name = actionDiv.replace(s_add,"")
+            victim = ""
+            aType = ActionType.S_ADDITION
+
+    ### AUTHOR's action
+
+    for a_kw in kwords["AUTHOR_DELETING"]:
+        if a_kw in actionDiv:
+            name = AUTHOR_NAME
+            victim = actionDiv.replace(a_kw,"")
+            aType = ActionType.REMOVAL    
+
+    for a_kw in kwords["AUTHOR_DELETION"]:
+        if a_kw in actionDiv:
+            name = actionDiv.replace(a_kw,"")
+            victim = AUTHOR_NAME
+            aType = ActionType.REMOVAL    
+    
+    for a_kw in kwords["AUTHOR_SELF_REMOVAL"]:
+        if a_kw in actionDiv:
+            name = AUTHOR_NAME
+            victim = ""
+            aType = ActionType.S_REMOVAL    
+
+    for a_kw in kwords["AUTHOR_ADDITION"]:
+        if a_kw in actionDiv:
+            name = actionDiv.replace(a_kw,"")
+            victim = AUTHOR_NAME
+            aType = ActionType.ADDITION    
+
+    for a_kw in kwords["AUTHOR_ADDITION_UNKNOWN"]:
+        if a_kw in actionDiv:
+            name = AUTHOR_NAME
+            victim = ""
+            aType = ActionType.S_ADDITION    
+
+    for a_kw in kwords["AUTHOR_S_ADDITION"]:
+        if a_kw in actionDiv:
+            name = AUTHOR_NAME
+            victim = ""
+            aType = ActionType.S_ADDITION
+
+    for a_kw in kwords["AUTHOR_ADDING"]:
+        if a_kw in actionDiv:
+            name = AUTHOR_NAME
+            victim = actionDiv.replace(a_kw,"")
+            aType = ActionType.ADDITION    
+
+    for a_kw in kwords["AUTHOR_PIN"]:
+        if a_kw in actionDiv:
+            name = AUTHOR_NAME
+            victim = ""
+            aType = ActionType.PIN
+
+
+    if name:
+        while name[0] == " " or name[0] == "\u200e": # This causes edge bugs to anyone that has contacts with starting whitespaces.
+            name = name[1:]         # These edge bugs don't matter because people that has contacts with starting whitespaces have worse problems in their lives.
+    
+    if name and name[-1] == "\n":
+        name = name[:-1]
+
+    if victim:
+        while victim[0] == " " or victim[0] == "\u200e":
+            victim = victim[1:]
+    
+    if victim and victim[-1] == "\n":
+        victim = victim[:-1]
+
+    return name, victim, aType
+
+
+def parseActionAndriod(dateDiv:str, actionDiv:str, dType:DATE_TYPE=DATE_TYPE.DDMMYY, kwords:dict=SPANISH_KEYWORDS):
+    dtime, _ = parseHeaderAndriod(dateDiv, dType=dType)
+    name, victim, aType = getAction(actionDiv, kwords)
+    return dtime, name, victim, aType
+
+
+def parseHeaderAndriod(dateDiv, nameDiv="", dType:str= "DD/MM/YY"):
     day = ""
     day += (dateDiv[0])
     if dateDiv[1] in ["0","1","2","3","4","5","6","7","8","9"]: # ? I know how awful this is, but isDigit(dateDiv[1]) doesn't work.
@@ -37,12 +170,13 @@ def parseHeaderAndriod(dateDiv, nameDiv, dType:str= "DD/MM/YY"):
     day = int(day)
     month = int(month)
 
-    name = nameDiv[1:-1]
-    if dType == DATE_TYPE.MMDDYY.value:
-        return month, day, year, hour, minute, name
-    else: return day, month, year, hour, minute, name
+    name = nameDiv[1:-1] if nameDiv else ""
 
-def parseHeaderIphone(dateDiv, nameDiv, dType=DATE_TYPE.DDMMYY):
+    if dType == DATE_TYPE.MMDDYY.value:
+        return datetime(year=year, month=day, day=month, hour=hour, minute=minute), name
+    else: return datetime(year=year, month=month, day=day, hour=hour, minute=minute), name
+
+def parseHeaderIphone(dateDiv, nameDiv="", dType=DATE_TYPE.DDMMYY):
     # print(dateDiv)
     day = ""
     day += (dateDiv[0])
@@ -66,13 +200,13 @@ def parseHeaderIphone(dateDiv, nameDiv, dType=DATE_TYPE.DDMMYY):
     month = int(month)
 
 
-    name = nameDiv[1:-1]
+    name = nameDiv[1:-1] if nameDiv else ""
 
-    if dType == DATE_TYPE.MMDDYY:
-        return month, day, year, hour, minute, name
-    else: return day, month, year, hour, minute, name
+    if dType == DATE_TYPE.MMDDYY.value:
+        return datetime(year=year, month=day, day=month, hour=hour, minute=minute), name
+    else: return datetime(year=year, month=month, day=day, hour=hour, minute=minute), name
 
-def parseHeaderOld(dateDiv, nameDiv, dType=DATE_TYPE.DDMMYY):
+def parseHeaderOld(dateDiv, nameDiv="", dType=DATE_TYPE.DDMMYY):
     # print(dateDiv)
     hour = int(dateDiv[0:2])
     minute = int(dateDiv[3:5])
@@ -98,11 +232,11 @@ def parseHeaderOld(dateDiv, nameDiv, dType=DATE_TYPE.DDMMYY):
     month = int(month)
 
 
-    name = nameDiv[1:-1]
+    name = nameDiv[1:-1] if nameDiv else ""
 
-    if dType == DATE_TYPE.MMDDYY:
-        return month, day, year, hour, minute, name
-    else: return day, month, year, hour, minute, name
+    if dType == DATE_TYPE.MMDDYY.value:
+        return datetime(year=year, month=day, day=month, hour=hour, minute=minute), name
+    else: return datetime(year=year, month=month, day=day, hour=hour, minute=minute), name
 
 
 def parseHeader(header:str, fType:FORMAT_TYPE, dtype:str):
@@ -111,19 +245,29 @@ def parseHeader(header:str, fType:FORMAT_TYPE, dtype:str):
     sDiv = divisions[1]
     match fType:
         case FORMAT_TYPE.ANDROID:
-            day, month, year, hour, minute, name = parseHeaderAndriod(fDiv, sDiv, dType=dtype)
-            return day, month, year, hour, minute, name
+            dtime, name = parseHeaderAndriod(fDiv, sDiv, dType=dtype)
+            return dtime, name
         case FORMAT_TYPE.IPHONE:
-            day, month, year, hour, minute, name = parseHeaderIphone(fDiv, sDiv, dType=dtype)
-            return day, month, year, hour, minute, name
+            dtime, name = parseHeaderIphone(fDiv, sDiv, dType=dtype)
+            return dtime, name
         case FORMAT_TYPE.OLD:
-            day, month, year, hour, minute, name = parseHeaderOld(fDiv, sDiv, dType=dtype)
-            return day, month, year, hour, minute, name
+            dtime, name = parseHeaderOld(fDiv, sDiv, dType=dtype)
+            return dtime, name
 
-def parseAction(header:str, fType:FORMAT_TYPE):
-    #TODO: GET THIS TO WORK AAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    
-    if fType == FORMAT_TYPE.IPHONE: raise ValueError(f"Action found ({header}) in unsopported format type.")
+def parseAction(header:str, fType:FORMAT_TYPE=FORMAT_TYPE.ANDROID, dtype:str=DATE_TYPE.DDMMYY.value):
+    divisions = splitDateNameByFormat(header,fType)
+    fDiv = divisions[0]
+    sDiv = divisions[1]
+    match fType:
+        case FORMAT_TYPE.ANDROID:
+            dtime, name, victim, aType = parseActionAndriod(fDiv, sDiv, dType=dtype)
+            return dtime, name, victim, aType
+        case _:
+            raise ValueError(f"Action found ({header}) in unsopported format type.")
+
+
+
+
     return 1,1,1,1,1,"",ActionType.PIN,None
 
 def parseMessage(message:str, kwords:dict=SPANISH_KEYWORDS):
@@ -157,7 +301,7 @@ def parseMessage(message:str, kwords:dict=SPANISH_KEYWORDS):
     return edited, deleted, mType, parsedMsg
 
 
-def parseChat(data, dStart: datetime, dEnd: datetime, language:str="SPANISH", dateType: str="DD/MM/YY") -> Chat:
+def parseChat(data, dStart: datetime=datetime(2000,1,1), dEnd: datetime=datetime.now(), language:str="SPANISH", dateType: str="DD/MM/YY") -> Chat:
     groupChat = Chat()
     match language:
         case "SPANISH":
@@ -171,7 +315,6 @@ def parseChat(data, dStart: datetime, dEnd: datetime, language:str="SPANISH", da
             print("USANDO FORMATO VIEJO ...")
             format = FORMAT_TYPE.OLD
         else:
-            # patternToUse = CHAT_PATTERN_IPHONE
             print("USANDO FORMATO IPHONE ...")
             format = FORMAT_TYPE.IPHONE
 
@@ -179,22 +322,20 @@ def parseChat(data, dStart: datetime, dEnd: datetime, language:str="SPANISH", da
         header = chat[i]
         message = chat[i+1]
         if header[-1] == ":": 
-            day, month, year, hour, minute, name = parseHeader(header, format, dateType)
-            dtime = datetime(day=day,month=month,year=year,hour=hour,minute=minute)
+            dtime, name = parseHeader(header, format, dateType)
             if (dtime >= dStart) and (dtime <= dEnd):
                 userId = groupChat.getOrMakeUserId(name)
                 wE,wD,mType, Pmessage = parseMessage(message,languageDict)
                 groupChat.addMessageChat(dtime, Pmessage, userId, wE, wD, mType)
 
-#        else:
-            # day, month, year, hour, minute, name, type, target = parseAction(header, format)
-            # userId = groupChat.getOrMakeUserId(name)
-            # dtime = datetime(day=day,month=month,year=year,hour=hour,minute=minute)
-            # groupChat.addActionChat(dt=dtime,id=userId,atype=type,target=target)
+        else:
+            dtime, name, target, type = parseAction(header, format)
+            if name:
+                userId = groupChat.getOrMakeUserId(name)
+                groupChat.addActionChat(dt=dtime,id=userId,atype=type,target=target)
 
     return groupChat
 
 
 if __name__ == "__main__":
     print("This shouldn't be run alone.")
-    # parseChat(messages)
