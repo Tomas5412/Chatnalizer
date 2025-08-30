@@ -13,6 +13,8 @@ import tkcalendar as tkc
 THEME_FILE = "forest-dark.tcl"
 THEME_NAME = "forest-dark"
 
+ROW_AMMOUNT = 5 # + 1 (including 0th row)
+COLUMN_AMMOUNT = 2 # + 1
 
 def getFile():
     filename.set(askopenfilename())
@@ -56,10 +58,15 @@ def startChatnalisis():
 
         warningText.set(APP_KEYWORDS[LANGUAGES[language.get()]]["analysis_complete"] + filepath)
     
+    except KeyError as e:
+        print(e)
+        warningText.set("Key error: " + str(e))
+    except ValueError as e:
+        print(e)
+        warningText.set("Value error: " + str(e))
     except Exception as e:
         print(e)
         warningText.set(e)
-
 
 root = tk.Tk()
 root.title("Chatnalizer (PROTOTYPE) version 0.2")
@@ -73,6 +80,7 @@ try:
     # START STUFF
     root.tk.call('source', f'appTheme/{THEME_FILE}')
     ttk.Style().theme_use(THEME_NAME)
+    root.resizable(False, False)
 
     # VARIABLES
 
@@ -186,15 +194,11 @@ try:
     ## Main frame
     main = ttk.Frame(root)
     main.grid()
-    main.columnconfigure(index=0, weight=1)
-    main.columnconfigure(index=1, weight=1)
-    main.columnconfigure(index=2, weight=1)
-    main.rowconfigure(index=0, weight=1)
-    main.rowconfigure(index=1, weight=1)
-    main.rowconfigure(index=2, weight=1)
-    main.rowconfigure(index=3, weight=1)
-    main.rowconfigure(index=4, weight=1)
-    main.rowconfigure(index=4, weight=1)
+
+    for i in range(ROW_AMMOUNT):
+       main.rowconfigure(index=i, weight=1)
+    for i in range(COLUMN_AMMOUNT):
+        main.columnconfigure(index=i, weight=1)
 
     ## Main buttons
 
@@ -220,6 +224,7 @@ try:
 
     wordListAdder = ttk.Entry(wordListSeparator)
     wordListAdder.grid(row=1,column=0, padx=0, pady=10, columnspan=2)
+    wordListAdder.bind("<Return>",lambda x: addWordList())
 
     wordListExplainer = ttk.Label(wordListSeparator, textvariable=wordListExplainerText, font=italic, foreground="gray", justify="center")
     wordListExplainer.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
@@ -280,8 +285,6 @@ try:
     
     languagebutton = ttk.Button(main, textvariable=languageText,command=changeLanguage)
     languagebutton.grid(row=5,column=2,padx=(0,10),pady=(00,25), sticky="SE")
-
-
 
 
     # END STUFF    

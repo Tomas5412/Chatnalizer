@@ -1,6 +1,7 @@
 from misc.classes import *
 from misc.keywords import SPANISH_KEYWORDS, AUTHOR_NAME
 from datetime import datetime
+from unicodedata import category
 
 def splitDateNameByFormat(header: str, fType:FORMAT_TYPE):
     match fType:
@@ -16,110 +17,111 @@ def splitDateNameByFormat(header: str, fType:FORMAT_TYPE):
             return division.split("]",maxsplit=1)
 
 
-def getAction(actionDiv:str, kwords):
+def getAction(actionDiv:str, kwords:dict=SPANISH_KEYWORDS) -> tuple[str, str, ActionType]:
     name = ""
     victim = ""
     aType = ActionType.OTHER
+    action = "".join(ch for ch in actionDiv if category(ch)[0] != "C")
 
     # This could've been a nested loop of ActionTypes (with the kwords keys being ActionTypes values)
     # However, the parsing of names and victims is different according to each type of action.
     # ? Perhaps there's a way to make this a nested loop, in a way that doesn't make the code completely unreadable
 
     for kick in kwords["KICKED_MSG"]: 
-        if kick in actionDiv:
-                name = actionDiv.split(kick)[0]
-                victim = actionDiv.split(kick)[1]
+        if kick in action:
+                name = action.split(kick)[0]
+                victim = action.split(kick)[1]
                 aType = ActionType.REMOVAL
 
     for add in kwords["ADDED_MSG"]:
-        if add in actionDiv:
-            name = actionDiv.split(add)[0]
-            victim = actionDiv.split(add)[1]
+        if add in action:
+            name = action.split(add)[0]
+            victim = action.split(add)[1]
             if victim[-1] == ".": victim = victim[:-1] # Some addition messages add an ending point. This is annoying and will cause edge bugs
             aType = ActionType.ADDITION
         
     for pin in kwords["PIN_MSG"]:
-        if pin in actionDiv:
-            name = actionDiv.replace(pin,"")
+        if pin in action:
+            name = action.replace(pin,"")
             victim = ""
             aType = ActionType.PIN
 
     for im_ch in kwords["CHANGE_LOGO"]:
-        if im_ch in actionDiv:
-            name = actionDiv.replace(im_ch,"")
+        if im_ch in action:
+            name = action.replace(im_ch,"")
             victim = ""
             aType = ActionType.I_CHANGE
 
     for desc_ch in kwords["CHANGE_DESCRIPTION"]:
-        if desc_ch in actionDiv:
-            name = actionDiv.replace(desc_ch,"")
+        if desc_ch in action:
+            name = action.replace(desc_ch,"")
             victim = ""
             aType = ActionType.D_CHANGE
 
     for name_ch in kwords["CHANGE_NAME"]:
-        if name_ch in actionDiv:
-            name = actionDiv.split(name_ch)[0]
+        if name_ch in action:
+            name = action.split(name_ch)[0]
             victim = ""
             aType = ActionType.N_CHANGE
 
     for s_del in kwords["SELF_DELETION"]:
-        if s_del in actionDiv:
-            name = actionDiv.replace(s_del, "")
+        if s_del in action:
+            name = action.replace(s_del, "")
             victim = ""
             aType = ActionType.S_REMOVAL
 
     for s_add in kwords["SELF_ADDITION"]:
-        if s_add in actionDiv:
-            name = actionDiv.replace(s_add,"")
+        if s_add in action:
+            name = action.replace(s_add,"")
             victim = ""
             aType = ActionType.S_ADDITION
 
     ### AUTHOR's action
 
     for a_kw in kwords["AUTHOR_DELETING"]:
-        if a_kw in actionDiv:
+        if a_kw in action:
             name = AUTHOR_NAME
-            victim = actionDiv.replace(a_kw,"")
+            victim = action.replace(a_kw,"")
             aType = ActionType.REMOVAL    
 
     for a_kw in kwords["AUTHOR_DELETION"]:
-        if a_kw in actionDiv:
-            name = actionDiv.replace(a_kw,"")
+        if a_kw in action:
+            name = action.replace(a_kw,"")
             victim = AUTHOR_NAME
             aType = ActionType.REMOVAL    
     
     for a_kw in kwords["AUTHOR_SELF_REMOVAL"]:
-        if a_kw in actionDiv:
+        if a_kw in action:
             name = AUTHOR_NAME
             victim = ""
             aType = ActionType.S_REMOVAL    
 
     for a_kw in kwords["AUTHOR_ADDITION"]:
-        if a_kw in actionDiv:
-            name = actionDiv.replace(a_kw,"")
+        if a_kw in action:
+            name = action.replace(a_kw,"")
             victim = AUTHOR_NAME
             aType = ActionType.ADDITION    
 
     for a_kw in kwords["AUTHOR_ADDITION_UNKNOWN"]:
-        if a_kw in actionDiv:
+        if a_kw in action:
             name = AUTHOR_NAME
             victim = ""
             aType = ActionType.S_ADDITION    
 
     for a_kw in kwords["AUTHOR_S_ADDITION"]:
-        if a_kw in actionDiv:
+        if a_kw in action:
             name = AUTHOR_NAME
             victim = ""
             aType = ActionType.S_ADDITION
 
     for a_kw in kwords["AUTHOR_ADDING"]:
-        if a_kw in actionDiv:
+        if a_kw in action:
             name = AUTHOR_NAME
-            victim = actionDiv.replace(a_kw,"")
+            victim = action.replace(a_kw,"")
             aType = ActionType.ADDITION    
 
     for a_kw in kwords["AUTHOR_PIN"]:
-        if a_kw in actionDiv:
+        if a_kw in action:
             name = AUTHOR_NAME
             victim = ""
             aType = ActionType.PIN
@@ -243,16 +245,20 @@ def parseHeader(header:str, fType:FORMAT_TYPE, dtype:str):
     divisions = splitDateNameByFormat(header,fType)
     fDiv = divisions[0]
     sDiv = divisions[1]
+    name = ""
+    dtime = ""
     match fType:
         case FORMAT_TYPE.ANDROID:
             dtime, name = parseHeaderAndriod(fDiv, sDiv, dType=dtype)
-            return dtime, name
+
         case FORMAT_TYPE.IPHONE:
             dtime, name = parseHeaderIphone(fDiv, sDiv, dType=dtype)
-            return dtime, name
+
         case FORMAT_TYPE.OLD:
             dtime, name = parseHeaderOld(fDiv, sDiv, dType=dtype)
-            return dtime, name
+    name = "".join(ch for ch in name if category(ch)[0] != "C")
+    return dtime, name
+
 
 def parseAction(header:str, fType:FORMAT_TYPE=FORMAT_TYPE.ANDROID, dtype:str=DATE_TYPE.DDMMYY.value):
     divisions = splitDateNameByFormat(header,fType)
@@ -272,23 +278,28 @@ def parseAction(header:str, fType:FORMAT_TYPE=FORMAT_TYPE.ANDROID, dtype:str=DAT
 
 def parseMessage(message:str, kwords:dict=SPANISH_KEYWORDS):
     parsedMsg = message[1:]
+    parsedMsg = "".join(ch for ch in parsedMsg if category(ch)[0] != "C")
     deleted = False
     edited = False
     mType = MediaType.NONE
     for kword in kwords["OMMITED_MEDIA"]:
         if parsedMsg == kword:
             mType = MediaType.OTHER
+            break
     for kword in kwords["DELETED_MSG"]:
         if parsedMsg == kword:
             deleted = True
             parsedMsg = ""
+            break
     for kword in kwords["EDITED_MSG"]:
         if kword in parsedMsg:
             edited = True
+            break
     for kword in kwords["TEMPORAL_MEDIA"]:
         if kword == parsedMsg:
             mType = MediaType.T_MEDIA
             parsedMsg = ""
+            break
     for kword in kwords["MEDIA_MSG"]:
         if kword in parsedMsg:
             #Found one!
@@ -298,6 +309,13 @@ def parseMessage(message:str, kwords:dict=SPANISH_KEYWORDS):
                         if ext in parsedMsg:
                             mType = type
                             parsedMsg = parsedMsg.replace(kword,"")
+                            break
+            break
+
+    for kword in kwords["SELF_DELETED_MSG"]:
+        if kword == parsedMsg:
+            deleted = True
+            parsedMsg = ""
     return edited, deleted, mType, parsedMsg
 
 

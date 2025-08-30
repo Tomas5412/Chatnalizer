@@ -24,8 +24,6 @@ def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI
             message = "Either the file is empty, or there was an error fetching the file."
         else:
             groupChat = parseChat(messages, dStart=dateStart, dEnd=dateEnd, dateType=dateType)
-
-            
             wordCount, emojiCount = mostWordsByChatter(groupChat, caseSensitive)
             uniqueWord = getUncommonWordsPerChatter(wordCount)
             messageCount, phraseCount = mostMessagesByChatter(groupChat, phraseList, caseSensitive)
@@ -40,18 +38,18 @@ def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI
 
                     message += f"They deleted {user.deletedMessages} messages and edited {user.editedMessages}.\n"
 
-                    if messageCount[user]:
+                    if messageCount.get(user,{}):
                         maxMsg = max(messageCount[user], key= messageCount[user].get)
                         message += f"Their most sent message was '{maxMsg}'. It was said {messageCount[user][maxMsg]} times.\n"
-                    if emojiCount[user]:
+                    if emojiCount.get(user,{}):
                         maxEmoji = max(emojiCount[user], key=emojiCount[user].get)
                         message += f"Their most used emoji was {maxEmoji}. It was used {emojiCount[user][maxEmoji]} times.\n"
-                    if uniqueWord[user.name]:
+                    if uniqueWord.get(user.name,{}):
                         message += "Here are their most unique words used:\n"
                         for wordData in uniqueWord[user.name]:
                             if wordData[4] != 100: # Excluse messages that had only been said by this chatter
                                 message += f"\t'{wordData[0]}' was said {(wordData[1]):.1f}% more than the average by this user. They said it {wordData[3]} times ({(wordData[4]):.2f}% of total usage)\n"
-                    if uniqueMsg[user.name]:
+                    if uniqueMsg.get(user.name,{}):
                         message += "Here are their most unique messages said:\n"
                         for messageData in uniqueMsg[user.name]:
                             if messageData[4] != 100:

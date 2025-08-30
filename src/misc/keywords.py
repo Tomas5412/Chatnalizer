@@ -8,6 +8,7 @@ SPANISH_KEYWORDS = {
     "OTHER_MEDIA" : ["No se puede mostrar este mensaje aquí. Para verlo, abre WhatsApp en tu teléfono.",
                      ],
     "DELETED_MSG" : ["Se eliminó este mensaje."],
+    "SELF_DELETED_MSG" : ["Eliminaste este mensaje."],
     "EDITED_MSG" : ["<Se editó este mensaje.>"],
     # Action stuff
     "KICKED_MSG" : [" eliminó a "],
@@ -89,7 +90,7 @@ APP_KEYWORDS = {
         "destroy" : "Delete",
         "case_sensitive" : "Case sensitive",
         "include_media" : "Include media analysis",
-        "media_warning" : "Actual files not required.\nOnly that it was exported with media.",
+        "media_warning" : "Actual media files not required.\nOnly that it was exported with media.",
         "list_explainer" : "Counts the number of times\neach member says the phrase or word."
     },
     "PORTUGUESE" : {
