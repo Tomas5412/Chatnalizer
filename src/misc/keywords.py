@@ -13,6 +13,7 @@ SPANISH_KEYWORDS = {
     # Action stuff
     "KICKED_MSG" : [" eliminó a "],
     "ADDED_MSG" : [" añadió a "],
+    "ADDED_SELFLESS" : ["Se añadió a "],
     "PIN_MSG" : [" fijó un mensaje."],
     "CHANGE_LOGO" : [" cambió el ícono de este grupo"],
     "CHANGE_NAME" : [" cambió el nombre del grupo de "],
@@ -28,8 +29,68 @@ SPANISH_KEYWORDS = {
     "AUTHOR_S_ADDITION" : ["Te uniste mediante el enlace de invitación de este grupo."],
     "AUTHOR_ADDING": ["Añadiste a "],
     "AUTHOR_PIN" : ["Fijaste un mensaje."],
-
 }
+
+ENGLISH_KEYWORDS = {
+    # Message stuff
+    "MEDIA_MSG" : ["(file attached)"],
+    "OMMITED_MEDIA" : ["<Media omitted>","<media omitted>"],
+    "TEMPORAL_MEDIA" : [""],
+    "OTHER_MEDIA" : [],
+    "DELETED_MSG" : ["This message was deleted"],
+    "SELF_DELETED_MSG" : ["You deleted this message"],
+    "EDITED_MSG" : ["<This message was edited>"],
+    # Action stuff
+    "KICKED_MSG" : ["  removed "],
+    "ADDED_MSG" : [" added "],
+    "ADDED_SELFLESS" : [],
+    "PIN_MSG" : [" pinned a message"],
+    "CHANGE_LOGO" : [" changed this group's icon"],
+    "CHANGE_NAME" : [" changed the group name from "],
+    "CHANGE_DESCRIPTION" : [" changed the group description"],
+    "SELF_ADDITION" : [" joined using this group's invite link"],
+    "SELF_DELETION" : [" left"],
+    ## The "Author" is the one that exported the chat: their actions are in first person.
+    "AUTHOR_DELETING" : ["You removed "],
+    "AUTHOR_DELETION" : [" removed you"],
+    "AUTHOR_SELF_REMOVAL" : ["You left"],
+    "AUTHOR_ADDITION" : [" added you"],
+    "AUTHOR_ADDITION_UNKNOWN" : ["You were added"],
+    "AUTHOR_S_ADDITION" : ["You joined using this group's invite link"],
+    "AUTHOR_ADDING": ["You added "],
+    "AUTHOR_PIN" : ["You pinned a message"],
+}
+
+PORTUGUESE_KEYWORDS = {
+    # Message stuff
+    "MEDIA_MSG" : ["(arquivo anexado)"],
+    "OMMITED_MEDIA" : ["<Mídia oculta>"],
+    "TEMPORAL_MEDIA" : [""],
+    "OTHER_MEDIA" : [],
+    "DELETED_MSG" : ["Mensagem apagada"],
+    "SELF_DELETED_MSG" : [], # Portuguese doesn't distinguish
+    "EDITED_MSG" : ["<Mensagem editada>"],
+    # Action stuff
+    "KICKED_MSG" : [" removeu "],
+    "ADDED_MSG" : [" adicionou "],
+    "ADDED_SELFLESS" : [],
+    "PIN_MSG" : [" fixou uma mensagem"],
+    "CHANGE_LOGO" : [" mudou a imagem deste grupo."],
+    "CHANGE_NAME" : [" mudou o nome do grupo de "],
+    "CHANGE_DESCRIPTION" : [" mudou a descrição do grupo"],
+    "SELF_ADDITION" : [" entrou usando o link de convite deste grupo"],
+    "SELF_DELETION" : [" saiu"],
+    ## The "Author" is the one that exported the chat: their actions are in first person.
+    "AUTHOR_DELETING" : ["Você removeu "],
+    "AUTHOR_DELETION" : [" removeu você"],
+    "AUTHOR_SELF_REMOVAL" : ["Você saiu"],
+    "AUTHOR_ADDITION" : [" adicionou você"],
+    "AUTHOR_ADDITION_UNKNOWN" : ["Você foi adicionado(a)"],
+    "AUTHOR_S_ADDITION" : ["Você entrou usando o link de convite do grupo"],
+    "AUTHOR_ADDING": ["Você adicionou "],
+    "AUTHOR_PIN" : ["Você fixou uma mensagem"],
+}
+
 
             # The "Author" is the one that exported the chat: their actions are in first person.
 AUTHOR_NAME = "AUTHOR RAAAAAAAAAA" 

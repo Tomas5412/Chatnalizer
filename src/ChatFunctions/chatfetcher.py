@@ -3,7 +3,7 @@
 from os import path
 import re
 
-CHAT_PATTERN = r'^([0-9]{1,2}/[0-9]{1,2}/[0-9]{4}, [0-9]{2}:[0-9]{2} - [^:\n]+[:\n])'
+CHAT_PATTERN = r'^([0-9]{1,2}/[0-9]{1,2}/[0-9]{2,4},? [0-9]{2}:[0-9]{2} - [^:\n]+[:\n])'
 
 CHAT_PATTERN_IPHONE = r'^(\u200e*\[[0-9]{1,2}/[0-9]{1,2}/[0-9]{2,4}, [0-9]{2}:[0-9]{2}:[0-9]{2,4}\] [^:\n]+[:\n])'
 
@@ -29,7 +29,7 @@ def chatFetch(fileRoute: str, fileName = '') -> list[str]:
 
     patternToUse = CHAT_PATTERN
 
-    if len(chat) < 4: raise ValueError("File does not contain chat.")
+    if len(chat) < 2: raise ValueError("File does not contain chat.")
 
     if chat[0] == "[":
         if chat[2] == ":" or chat[3] == ":":

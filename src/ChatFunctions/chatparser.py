@@ -1,7 +1,8 @@
 from misc.classes import *
-from misc.keywords import SPANISH_KEYWORDS, AUTHOR_NAME
+from misc.keywords import SPANISH_KEYWORDS, AUTHOR_NAME, ENGLISH_KEYWORDS, PORTUGUESE_KEYWORDS
 from datetime import datetime
 from unicodedata import category
+from dateutil import parser
 
 def splitDateNameByFormat(header: str, fType:FORMAT_TYPE):
     match fType:
@@ -35,10 +36,16 @@ def getAction(actionDiv:str, kwords:dict=SPANISH_KEYWORDS) -> tuple[str, str, Ac
 
     for add in kwords["ADDED_MSG"]:
         if add in action:
-            name = action.split(add)[0]
-            victim = action.split(add)[1]
-            if victim[-1] == ".": victim = victim[:-1] # Some addition messages add an ending point. This is annoying and will cause edge bugs
-            aType = ActionType.ADDITION
+            selfless = False
+            for selflessKw in kwords["ADDED_SELFLESS"]:
+                if selflessKw in action:
+                    selfless = True # Some additions don't register the adder. These ones will be ignored.
+                    break
+            if not selfless:
+                name = action.split(add)[0]
+                victim = action.split(add)[1]
+                if victim[-1] == ".": victim = victim[:-1] # Some addition messages add an ending point. This is annoying and will cause edge bugs
+                aType = ActionType.ADDITION
         
     for pin in kwords["PIN_MSG"]:
         if pin in action:
@@ -145,100 +152,16 @@ def getAction(actionDiv:str, kwords:dict=SPANISH_KEYWORDS) -> tuple[str, str, Ac
 
 
 def parseActionAndriod(dateDiv:str, actionDiv:str, dType:DATE_TYPE=DATE_TYPE.DDMMYY, kwords:dict=SPANISH_KEYWORDS):
-    dtime, _ = parseHeaderAndriod(dateDiv, dType=dType)
+    dtime, _ = parseDate(dateDiv, dType=dType)
     name, victim, aType = getAction(actionDiv, kwords)
     return dtime, name, victim, aType
 
 
-def parseHeaderAndriod(dateDiv, nameDiv="", dType:str= "DD/MM/YY"):
-    day = ""
-    day += (dateDiv[0])
-    if dateDiv[1] in ["0","1","2","3","4","5","6","7","8","9"]: # ? I know how awful this is, but isDigit(dateDiv[1]) doesn't work.
-        day += (dateDiv[1])
-        dateDiv = dateDiv[3:]
-    else: dateDiv = dateDiv[2:]
-
-    month = ""
-    month += (dateDiv[0])
-    if dateDiv[1] in ["0","1","2","3","4","5","6","7","8","9"]: # ? I know how awful this is, but isDigit(dateDiv[1]) doesn't work.
-        month += (dateDiv[1])
-        dateDiv = dateDiv[3:]
-    else: dateDiv = dateDiv[2:]
-
-    year = int(dateDiv[0:4])
-    hour = int(dateDiv[6:8])
-    minute = int(dateDiv[9:11])
-
-    day = int(day)
-    month = int(month)
-
+def parseDate(dateDiv,nameDiv="",dType:str= "DD/MM/YY"):
+    dayFirst = dType == "DD/MM/YY"
+    date = parser.parse(dateDiv,dayfirst=dayFirst) #! Here's the perfomance bottleneck
     name = nameDiv[1:-1] if nameDiv else ""
-
-    if dType == DATE_TYPE.MMDDYY.value:
-        return datetime(year=year, month=day, day=month, hour=hour, minute=minute), name
-    else: return datetime(year=year, month=month, day=day, hour=hour, minute=minute), name
-
-def parseHeaderIphone(dateDiv, nameDiv="", dType=DATE_TYPE.DDMMYY):
-    # print(dateDiv)
-    day = ""
-    day += (dateDiv[0])
-    if dateDiv[1] in ["0","1","2","3","4","5","6","7","8","9"]: # ? I know how awful this is, but isDigit(dateDiv[1]) doesn't work.
-        day += (dateDiv[1])
-        dateDiv = dateDiv[3:]
-    else: dateDiv = dateDiv[2:]
-
-    month = ""
-    month += (dateDiv[0])
-    if dateDiv[1] in ["0","1","2","3","4","5","6","7","8","9"]: # ? I know how awful this is, but isDigit(dateDiv[1]) doesn't work.
-        month += (dateDiv[1])
-        dateDiv = dateDiv[3:]
-    else: dateDiv = dateDiv[2:]
-
-    year = int("20" + dateDiv[0:2]) #The Iphone functionality will break in 2100, Whoops!
-    hour = int(dateDiv[4:6])
-    minute = int(dateDiv[7:9])
-
-    day = int(day)
-    month = int(month)
-
-
-    name = nameDiv[1:-1] if nameDiv else ""
-
-    if dType == DATE_TYPE.MMDDYY.value:
-        return datetime(year=year, month=day, day=month, hour=hour, minute=minute), name
-    else: return datetime(year=year, month=month, day=day, hour=hour, minute=minute), name
-
-def parseHeaderOld(dateDiv, nameDiv="", dType=DATE_TYPE.DDMMYY):
-    # print(dateDiv)
-    hour = int(dateDiv[0:2])
-    minute = int(dateDiv[3:5])
-
-    dateDiv = dateDiv[7:]
-
-    day = ""
-    day += (dateDiv[0])
-    if dateDiv[1] in ["0","1","2","3","4","5","6","7","8","9"]: # ? I know how awful this is, but isDigit(dateDiv[1]) doesn't work.
-        day += (dateDiv[1])
-        dateDiv = dateDiv[3:]
-    else: dateDiv = dateDiv[2:]
-
-    month = ""
-    month += (dateDiv[0])
-    if dateDiv[1] in ["0","1","2","3","4","5","6","7","8","9"]: # ? I know how awful this is, but isDigit(dateDiv[1]) doesn't work.
-        month += (dateDiv[1])
-        dateDiv = dateDiv[3:]
-    else: dateDiv = dateDiv[2:]
-
-    year = int(dateDiv[0:5])
-    day = int(day)
-    month = int(month)
-
-
-    name = nameDiv[1:-1] if nameDiv else ""
-
-    if dType == DATE_TYPE.MMDDYY.value:
-        return datetime(year=year, month=day, day=month, hour=hour, minute=minute), name
-    else: return datetime(year=year, month=month, day=day, hour=hour, minute=minute), name
+    return date, name
 
 
 def parseHeader(header:str, fType:FORMAT_TYPE, dtype:str):
@@ -247,26 +170,18 @@ def parseHeader(header:str, fType:FORMAT_TYPE, dtype:str):
     sDiv = divisions[1]
     name = ""
     dtime = ""
-    match fType:
-        case FORMAT_TYPE.ANDROID:
-            dtime, name = parseHeaderAndriod(fDiv, sDiv, dType=dtype)
-
-        case FORMAT_TYPE.IPHONE:
-            dtime, name = parseHeaderIphone(fDiv, sDiv, dType=dtype)
-
-        case FORMAT_TYPE.OLD:
-            dtime, name = parseHeaderOld(fDiv, sDiv, dType=dtype)
+    dtime, name = parseDate(fDiv, sDiv,dType=dtype)
     name = "".join(ch for ch in name if category(ch)[0] != "C")
     return dtime, name
 
 
-def parseAction(header:str, fType:FORMAT_TYPE=FORMAT_TYPE.ANDROID, dtype:str=DATE_TYPE.DDMMYY.value):
+def parseAction(header:str, fType:FORMAT_TYPE=FORMAT_TYPE.ANDROID, dtype:str=DATE_TYPE.DDMMYY.value, kwords=SPANISH_KEYWORDS):
     divisions = splitDateNameByFormat(header,fType)
     fDiv = divisions[0]
     sDiv = divisions[1]
     match fType:
         case FORMAT_TYPE.ANDROID:
-            dtime, name, victim, aType = parseActionAndriod(fDiv, sDiv, dType=dtype)
+            dtime, name, victim, aType = parseActionAndriod(fDiv, sDiv, dType=dtype, kwords=kwords)
             return dtime, name, victim, aType
         case _:
             raise ValueError(f"Action found ({header}) in unsopported format type.")
@@ -324,9 +239,13 @@ def parseChat(data, dStart: datetime=datetime(2000,1,1), dEnd: datetime=datetime
     match language:
         case "SPANISH":
             languageDict = SPANISH_KEYWORDS
+        case "ENGLISH":
+            languageDict = ENGLISH_KEYWORDS
+        case "PORTUGUESE":
+            languageDict = PORTUGUESE_KEYWORDS
+
     # First message is always null?
     chat = data[1:]
-    events = []
     format = FORMAT_TYPE.ANDROID
     if(chat[0][0] == "["): 
         if chat[0][2] == ":" or chat[0][3] == ":":
@@ -343,12 +262,12 @@ def parseChat(data, dStart: datetime=datetime(2000,1,1), dEnd: datetime=datetime
             dtime, name = parseHeader(header, format, dateType)
             if (dtime >= dStart) and (dtime <= dEnd):
                 userId = groupChat.getOrMakeUserId(name)
-                wE,wD,mType, Pmessage = parseMessage(message,languageDict)
+                wE,wD, mType, Pmessage = parseMessage(message,languageDict)
                 groupChat.addMessageChat(dtime, Pmessage, userId, wE, wD, mType)
 
         else:
-            dtime, name, target, type = parseAction(header, format)
-            if name:
+            dtime, name, target, type = parseAction(header, format, kwords=languageDict)
+            if name and (dtime >= dStart) and (dtime <= dEnd):
                 userId = groupChat.getOrMakeUserId(name)
                 groupChat.addActionChat(dt=dtime,id=userId,atype=type,target=target)
 

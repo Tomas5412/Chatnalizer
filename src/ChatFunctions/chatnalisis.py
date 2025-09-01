@@ -1,6 +1,7 @@
 from misc.classes import Chat, datetime, Member
 from misc.keywords import WORDS_TO_IGNORE, MESSAGES_TO_IGNORE
 from unicodedata import category
+from datetime import timedelta, time, date
 import emoji
 
 
@@ -161,8 +162,6 @@ def getUncommonMessagesPerChatter(mDict:dict) -> dict[str, list[tuple[str, float
     """
     pDict = {} # Proportion dict!
     for member, mwDict in mDict.items():
-        n = len(mwDict)
-        # third_q = int(3*n/4) # Third quantile (Not useful anymore)
         sDict = sorted(mwDict, key=mwDict.get)
         for word in sDict:
             proportion = mwDict[word] / member.m_ammount
@@ -205,26 +204,177 @@ def filterChatByTime(gc: Chat, dateStart: datetime, dateEnd: datetime) -> Chat:
         gc.updateMessageListChat(msgl=newMessageList, member=member)
     return gc
 
-def getTimeStats(gc: Chat):
+
+
+
+
+def getTimeDicts(gc: Chat) -> tuple[dict[time,int], dict[str,dict[time,int]], 
+                                    dict[datetime,int], dict[str,dict[datetime,int]], 
+                                    dict[int,int], dict[str,dict[int,int]]]:
+    '''
+    wrapper function that calls all functions that return dicts.
+
+    In order, these are: global minute ranking, personal minute ranking, global date ranking, personal date ranking, global hour ranking, personal hour ranking
+    '''
+
+    # Statistics variables are in snake_case because they're cuter that way (?
+        
     messageList = []
     for member in gc.members:
         for message in member.messages:
-            messageList.append((member.name, message.dtime))
+            messageList.append((message.dtime, member.name))
         for action in member.actions:
-            messageList.append((member.name, action.dtime))
-    messageList.sort(key=lambda x:x[1])
-    dStart, dEnd = getLongestStreak(messageList=messageList)
+            messageList.append((action.dtime, member.name))
+    messageList.sort(key=lambda x:x[0])
+    global_hm_ranking, global_h_ranking = getHourRanking(messageList=messageList)
+    personal_hm_ranking = getHourAndMinuteRankingPerChatter(messageList)
+    personal_h_ranking = getHourRankingPerChatter(messageList)
+    global_date_ranking = getDayRanking(messageList)
+    personal_date_ranking = getDayRankingPerChatter(messageList)
+    return global_hm_ranking, personal_hm_ranking, global_date_ranking, personal_date_ranking, global_h_ranking, personal_h_ranking
 
+
+
+
+def getHourRanking(messageList: list[tuple[datetime,str]]) -> tuple[dict[time,int], dict[int,int]]:
+    hourAndMinutedict = {}
+    hourDict = {}
+    for element in messageList:
+        elem_time = time(element[0].hour,element[0].minute)
+        hourAndMinutedict[elem_time] = hourAndMinutedict.get(elem_time,0) + 1
+        hourDict[elem_time.hour] = hourDict.get(elem_time.hour,0) + 1
+    return hourAndMinutedict, hourDict
+
+def getHourAndMinuteRankingPerChatter(messageList: list[tuple[datetime,str]]) -> dict[str,dict[time,int]]:
+    time_dict = {}
+    for element in messageList:
+        elem_name = element[1]
+        elem_time = time(element[0].hour,element[0].minute)
+        if elem_name in time_dict.keys():
+            time_dict[elem_name][elem_time] = time_dict[elem_name].get(elem_time,0) + 1
+        else: time_dict[elem_name] = {}
+    return time_dict
+
+def getHourRankingPerChatter(messageList: list[tuple[datetime,str]]) -> dict[str,dict[int,int]]:
+    time_dict = {}
+    for element in messageList:
+        elem_name = element[1]
+        elem_time = element[0].hour
+        if elem_name in time_dict.keys():
+            time_dict[elem_name][elem_time] = time_dict[elem_name].get(elem_time,0) + 1
+        else: time_dict[elem_name] = {}
+    return time_dict
+
+def getDayRanking(messageList: list[tuple[datetime,str]]) -> dict[datetime,int]:
+    # Statistics variables are in snake_case because they're cuter that way (?
+    date_dict = {}
+    for element in messageList:
+        elem_date = date(year=element[0].year, month=element[0].month, day=element[0].day)
+        date_dict[elem_date] = date_dict.get(elem_date,0) + 1
+    return date_dict
+
+def getDayRankingPerChatter(messageList: list[tuple[datetime,str]]) -> dict[str,dict[datetime,int]]:
+    date_dict = {}
+    for element in messageList:
+        elem_name = element[1]
+        elem_date = date(element[0].year,element[0].month, element[0].day)
+        if elem_name in date_dict.keys():
+            date_dict[elem_name][elem_date] = date_dict[elem_name].get(elem_date,0) + 1
+        else: date_dict[elem_name] = {}
+    return date_dict
 
 def getLongestStreak(messageList: list[tuple[datetime,str]]) -> tuple[datetime, datetime]:
     """
     Get the start and end date for the longest streak of consecutive messages in the chat.
     """
-    current_day = messageList[0][0]
+
+    # Statistics variables are in snake_case because they're cuter that way (?
+
+    highest_first_day = current_first_day = messageList[0][0].date()
+    highest_last_day = current_last_day = messageList[0][0].date()
+    highest_streak = current_streak = 0
+
+    for elem in messageList:
+        
+        date = elem[0].date()
+        
+        if date == current_last_day: continue
+
+        elif date == (current_last_day + timedelta(days=1)):
+            current_streak += 1
+            current_last_day = date
+        else:
+            if current_streak > highest_streak:
+                highest_streak = current_streak
+                highest_first_day = current_first_day
+                highest_last_day = current_last_day
+            current_streak = 0
+            current_first_day = date
+            current_last_day = date     
+    else:
+        if current_streak > highest_streak:
+            highest_streak = current_streak
+            highest_first_day = current_first_day
+            highest_last_day = current_last_day    
     
-    return
+    return highest_first_day, highest_last_day
+
+def getDayPercentage(messageList: list[tuple[datetime,str]], dStart:datetime, dEnd:datetime) -> float:
+    """
+    Get the percentage of days a message was sent.
+    """
+    day_begin = messageList[0][0]
+    day_count = 1
+    for message in messageList:
+        date = message[0]
+        if date.date() != day_begin.date():
+            day_count += 1
+            day_begin = date
+    last_day = messageList[-1][0] if dEnd.date() == datetime.now().date() else dEnd
+    lifespan = last_day - (messageList[0][0] if dStart.year == 2009 else dStart)
+    return day_count / (lifespan.days + 1)
+
+def getDayPercentagePerChatter(messageList: list[tuple[datetime,str]], dStart=datetime(2009,2,1), dEnd=datetime(2000,1,1)) -> dict[str,tuple[float,int]]:
+    """
+    Get the percentage of days each chatter has sent a message.
+    """
+    dayBegins = {}
+    dayIter = {}
+    dayBegins[messageList[0][1]] = messageList[0][0]
+    dayCounts = {}
+    dayCounts[messageList[0][1]] = 1
+    for message in messageList:
+        if message[0].date() != dayIter.get(message[1],datetime(1,1,1)).date():
+            dayIter[message[1]] = message[0]
+            if not dayBegins.get(message[1],0):
+                dayBegins[message[1]] = message[0]
+            dayCounts[message[1]] = dayCounts.get(message[1],0) + 1
+
+    lastDay = messageList[-1][0] if dEnd.date() == datetime.now().date() else dEnd
+    pctgDict = {}
+    for member, count in dayCounts.items():
+        chatspan:timedelta = lastDay - (dayBegins[member] if dStart.year == 2009 else dStart)
+        pctgDict[member] = (count / (chatspan.days + 1), count)
+    return pctgDict
+
+def getTimeStats(gc:Chat, dateStart:datetime, dateEnd:datetime):
+    """
+    Wrapper function that gets other time statistics.
+    """
+    messageList = []
+    for member in gc.members:
+        for message in member.messages:
+            messageList.append((message.dtime, member.name))
+        for action in member.actions:
+            messageList.append((action.dtime, member.name))
+    messageList.sort(key=lambda x:x[0])
+    dStart, dEnd = getLongestStreak(messageList=messageList)
+    dayPctg = getDayPercentage(messageList, dateStart, dateEnd)
+    pctgDict = getDayPercentagePerChatter(messageList, dateStart, dateEnd)
+    return dStart, dEnd, dayPctg, pctgDict
 
 
 
 if __name__ == "__main__":
     print("This shouldn't be run alone.")
+    
