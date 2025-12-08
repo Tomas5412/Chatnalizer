@@ -178,6 +178,8 @@ APP_KEYWORDS = {
     }
 }
 
+GRAPHIC_KEYWORDS = []
+
 
 
 WORDS_TO_IGNORE = ["<multimedia","omitido>","null","omitido","omitida","sticker","audio","imagen","video","<se","mensaje.>","<adjunto:","votos)"]

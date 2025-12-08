@@ -7,12 +7,19 @@ from datetime import timedelta
 from misc.keywords import AUTHOR_NAME, LANGUAGES
 
 
-def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI:bool, caseSensitive:bool, phraseList, dateType: str, languageIndex:int) -> str:
+def analizeChat(filename: str, config: dict) -> str:
 
-    for dt in DATE_TYPE:
-        if dateType == dt.value:
-            break
-    else:
+    # All the config variables are extracted at once.
+    
+    dateType = config["dateType"]
+    languageIndex = config["languageIndex"]
+    dateStart = config["dateStart"]
+    dateEnd = config["dateEnd"]
+    caseSensitive = config["caseSensitive"]
+    phraseList = config["phraseList"]
+    excludeAI = config["excludeAI"]
+
+    if dateType not in {dt.value for dt in DATE_TYPE}:
         raise ValueError("Date format not selected.")
 
     if not filename: raise ValueError("File not selected.")
@@ -30,6 +37,7 @@ def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI
         groupChat = parseChat(messages, dStart=dateStart, dEnd=dateEnd, dateType=dateType, language=langauge)
         wordCount, emojiCount = mostWordsByChatter(groupChat, caseSensitive)
         uniqueWord = getUncommonWordsPerChatter(wordCount)
+        mostTalkedDict = getMostTalkedTo(groupChat)
         messageCount, phraseCount = mostMessagesByChatter(groupChat, phraseList, caseSensitive)
         uniqueMsg = getUncommonMessagesPerChatter(messageCount)
         global_minute_ranking, personal_minute_ranking, global_date_ranking, personal_date_ranking, global_hour_ranking, personal_hour_ranking = getTimeDicts(groupChat)
@@ -47,9 +55,11 @@ def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI
 
                 message += f"They sent a message {pctgDict[user.name][0]*100:.2f}% of days ({pctgDict[user.name][1]} days).\n"
                 message += f"They deleted {user.deletedMessages} messages and edited {user.editedMessages}.\n"
-
-                max_date = max(personal_date_ranking[user.name], key=personal_date_ranking[user.name].get)
-                message += f"The day with most messages by this chatter was {max_date.day}/{max_date.month}/{max_date.year}, at {personal_date_ranking[user.name][max_date]} messages.\n"
+                try:
+                    max_date = max(personal_date_ranking[user.name], key=personal_date_ranking[user.name].get)
+                    message += f"The day with most messages by this chatter was {max_date.day}/{max_date.month}/{max_date.year}, at {personal_date_ranking[user.name][max_date]} messages.\n"
+                except:
+                    continue
 
                 if messageCount.get(user,{}):
                     maxMsg = max(messageCount[user], key= messageCount[user].get)
@@ -79,6 +89,8 @@ def analizeChat(filename: str, dateStart: datetime, dateEnd: datetime, excludeAI
                 for action in ActionType:
                     if user.actionsDone[action] > 1: 
                         message += f"{action.value} action was done {user.actionsDone[action]} times.\n"
+                if user.name in mostTalkedDict.keys():
+                    message += f"Their most talked to chatter was {mostTalkedDict[user.name][0]} (answered {mostTalkedDict[user.name][1]} times)\n"
                 
                 message += "="*70 + "\n"
                 

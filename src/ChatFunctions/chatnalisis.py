@@ -134,7 +134,10 @@ def getUncommonWordsPerChatter(wDict:dict) -> dict[str, list[tuple[str, float, i
         timesUsedTotal = sum(wDict[member].get(rare[0],0) for member in wDict.keys())
         timesUsedChatter = wDict[rare[1]][rare[0]]
         if rare[1].name not in uniqueWordPerUser.keys():
-            uniqueWordPerUser[rare[1].name] = [(rare[0],rare[2]*100, timesUsedTotal, timesUsedChatter, (timesUsedChatter / timesUsedTotal) * 100)]
+            # Store the values in the following order:
+            # [word, percentage of uniqueness, times the word was used, times the word was used by this chatter, percentage of times the chatter said the word]
+            # ! If desired, make this a dict
+            uniqueWordPerUser[rare[1].name] = [(rare[0], rare[2]*100, timesUsedTotal, timesUsedChatter, (timesUsedChatter / timesUsedTotal) * 100)]
         elif len(uniqueWordPerUser[rare[1].name]) <= 5:
             uniqueWordPerUser[rare[1].name].append((rare[0],rare[2]*100, timesUsedTotal, timesUsedChatter, (timesUsedChatter / timesUsedTotal) * 100))
     return uniqueWordPerUser
@@ -321,7 +324,7 @@ def getLongestStreak(messageList: list[tuple[datetime,str]]) -> tuple[datetime, 
 
 def getDayPercentage(messageList: list[tuple[datetime,str]], dStart:datetime, dEnd:datetime) -> float:
     """
-    Get the percentage of days a message was sent.
+    Get the percentage of days in which a message was sent.
     """
     day_begin = messageList[0][0]
     day_count = 1
@@ -357,6 +360,37 @@ def getDayPercentagePerChatter(messageList: list[tuple[datetime,str]], dStart=da
         pctgDict[member] = (count / (chatspan.days + 1), count)
     return pctgDict
 
+def getMostTalkedTo(groupChat: Chat) -> dict[str,tuple[str,int]]:
+    """
+    Gets each chatter's person to which they've responded most.
+    This is calculated by counting how many times they've sent a message directly after the other person.
+    """
+    messageList = []
+    for member in groupChat.members:
+        for message in member.messages:
+            messageList.append((message.dtime, member.name))
+        for action in member.actions:
+            messageList.append((action.dtime, member.name))
+    messageList.sort(key=lambda x:x[0])
+    countDict:dict[str,dict[str,int]] = {}
+    countDict[messageList[0][1]] = {}
+    lastChatter = messageList[0][1]
+    for message in messageList[1:]:
+        actualChatter = message[1]
+        if lastChatter == actualChatter: continue
+        else:
+            if actualChatter not in countDict.keys():
+                countDict[actualChatter] = {}
+            countDict[actualChatter][lastChatter] = countDict[actualChatter].get(lastChatter,0) + 1
+        lastChatter = actualChatter
+    mostTalkedDict = {}
+    for chatter in countDict.keys():
+        if(countDict[chatter]):
+            mostTalked = max(countDict[chatter].keys(),key=countDict[chatter].get)
+            mostTalkedDict[chatter] = (mostTalked, countDict[chatter][mostTalked])
+    return mostTalkedDict
+        
+
 def getTimeStats(gc:Chat, dateStart:datetime, dateEnd:datetime):
     """
     Wrapper function that gets other time statistics.
@@ -372,8 +406,6 @@ def getTimeStats(gc:Chat, dateStart:datetime, dateEnd:datetime):
     dayPctg = getDayPercentage(messageList, dateStart, dateEnd)
     pctgDict = getDayPercentagePerChatter(messageList, dateStart, dateEnd)
     return dStart, dEnd, dayPctg, pctgDict
-
-
 
 if __name__ == "__main__":
     print("This shouldn't be run alone.")

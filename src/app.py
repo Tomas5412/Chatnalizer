@@ -50,7 +50,15 @@ def startChatnalisis():
 
         dType = dateFormat.get()
         if dType not in [t.value for t in DATE_TYPE]: dType = "DD/MM/YY"
-        message = analizeChat(filename.get(), excludeAI=aistate.get(), dateStart=dStart, dateEnd=dEnd, dateType=dType, phraseList=wordList, caseSensitive=caseSensitive.get(), languageIndex=language.get())
+        config = {}
+        config["excludeAI"]= aistate.get()
+        config["dateStart"] = dStart
+        config["dateEnd"] = dEnd
+        config["dateType"] = dType
+        config["phraseList"] = wordList
+        config["caseSensitive"] = caseSensitive.get()
+        config["languageIndex"] = language.get()
+        message = analizeChat(filename.get(), config)
         filepath = path.join(path.abspath(""),f"results_{path.basename(filename.get())}")
         with open(filepath, "w+") as f:
             f.write(message)
