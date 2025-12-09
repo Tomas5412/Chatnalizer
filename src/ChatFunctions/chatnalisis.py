@@ -1,4 +1,4 @@
-from misc.classes import Chat, datetime, Member
+from misc.classes import Chat, datetime, Member, MediaType
 from misc.keywords import WORDS_TO_IGNORE, MESSAGES_TO_IGNORE
 from unicodedata import category
 from datetime import timedelta, time, date
@@ -360,6 +360,22 @@ def getDayPercentagePerChatter(messageList: list[tuple[datetime,str]], dStart=da
         pctgDict[member] = (count / (chatspan.days + 1), count)
     return pctgDict
 
+def getTimeStats(gc:Chat, dateStart:datetime, dateEnd:datetime):
+    """
+    Wrapper function that gets other time statistics.
+    """
+    messageList = []
+    for member in gc.members:
+        for message in member.messages:
+            messageList.append((message.dtime, member.name))
+        for action in member.actions:
+            messageList.append((action.dtime, member.name))
+    messageList.sort(key=lambda x:x[0])
+    dStart, dEnd = getLongestStreak(messageList=messageList) #Date start and end OF THE LONGEST STREAK*
+    dayPctg = getDayPercentage(messageList, dateStart, dateEnd)
+    pctgDict = getDayPercentagePerChatter(messageList, dateStart, dateEnd)
+    return dStart, dEnd, dayPctg, pctgDict
+
 def getMostTalkedTo(groupChat: Chat) -> dict[str,tuple[str,int]]:
     """
     Gets each chatter's person to which they've responded most.
@@ -389,23 +405,48 @@ def getMostTalkedTo(groupChat: Chat) -> dict[str,tuple[str,int]]:
             mostTalked = max(countDict[chatter].keys(),key=countDict[chatter].get)
             mostTalkedDict[chatter] = (mostTalked, countDict[chatter][mostTalked])
     return mostTalkedDict
-        
 
-def getTimeStats(gc:Chat, dateStart:datetime, dateEnd:datetime):
+def getGlobalMediaStats(gc:Chat) -> dict[MediaType, int]:
     """
-    Wrapper function that gets other time statistics.
+    Calculates all the media sent, by type.
     """
-    messageList = []
+    mediaStatsDict = {}
     for member in gc.members:
-        for message in member.messages:
-            messageList.append((message.dtime, member.name))
-        for action in member.actions:
-            messageList.append((action.dtime, member.name))
-    messageList.sort(key=lambda x:x[0])
-    dStart, dEnd = getLongestStreak(messageList=messageList)
-    dayPctg = getDayPercentage(messageList, dateStart, dateEnd)
-    pctgDict = getDayPercentagePerChatter(messageList, dateStart, dateEnd)
-    return dStart, dEnd, dayPctg, pctgDict
+        for m_type in MediaType:
+            if m_type != MediaType.NONE:
+                mediaStatsDict[m_type] = mediaStatsDict.get(m_type,0) + member.mediaSent[m_type]
+    return mediaStatsDict
+    
+def getAbsoluteChampionPerMediaType(gc:Chat) -> dict[MediaType,list[Member]]:
+    """
+    Get the chatter/s that has/have sent more of each media type.
+    """
+    championDict = {}
+    for m_type in MediaType:
+        if m_type != MediaType.NONE:
+            champion = max(gc.members, key=lambda x: x.mediaSent[m_type]) # This only finds one champion.
+            maxVal = champion.mediaSent[m_type]
+            if maxVal != 0: # ? This could be done in a better way, for sure. 
+                candidates = list(filter(lambda x: x.mediaSent[m_type] == maxVal, gc.members))
+                championDict[m_type] = candidates
+                # ? Investigate any python shortcuts to make max return a list of all the max values.
+    return championDict
+
+def getRelativeChampionPerMediaType(gc:Chat) -> dict[MediaType,list[Member]]:
+    """
+    Get the chatter/s that has sent more of each media type, relative to the total messages sent.
+    This one's less likely to have a tie, but the technology's still there to handle them.
+    """
+    championDict = {}
+    for m_type in MediaType:
+        if m_type != MediaType.NONE:
+            curatedMembers = list(filter(lambda x: x.m_ammount != 0, gc.members))
+            champion = max(curatedMembers, key=lambda x: x.mediaSent[m_type] / x.m_ammount)
+            maxVal = champion.mediaSent[m_type] / champion.m_ammount
+            if maxVal != 0:
+                candidates = list(filter(lambda x: (x.mediaSent[m_type] / x.m_ammount) == maxVal, curatedMembers))
+                championDict[m_type] = candidates
+    return championDict
 
 if __name__ == "__main__":
     print("This shouldn't be run alone.")

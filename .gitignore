@@ -11,6 +11,7 @@ src/chat/*
 src/chatparseados/*
 src/results.txt
 results_*
+src/internal/*
 
 # Distribution / packaging
 .Python

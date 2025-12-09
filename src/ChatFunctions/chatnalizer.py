@@ -1,13 +1,14 @@
 from ChatFunctions.chatparser import parseChat
 from ChatFunctions.chatfetcher import chatFetch
 from ChatFunctions.chatnalisis import *
+from ChatFunctions.chatgraphics import *
 from misc.classes import DATE_TYPE, MediaType, ActionType
 from os import path
 from datetime import timedelta
 from misc.keywords import AUTHOR_NAME, LANGUAGES
 
 
-def analizeChat(filename: str, config: dict) -> str:
+def analizeChat(filename: str, config: dict[str,bool]) -> str:
 
     # All the config variables are extracted at once.
     
@@ -18,6 +19,7 @@ def analizeChat(filename: str, config: dict) -> str:
     caseSensitive = config["caseSensitive"]
     phraseList = config["phraseList"]
     excludeAI = config["excludeAI"]
+    includeMedia = config["includeMedia"]
 
     if dateType not in {dt.value for dt in DATE_TYPE}:
         raise ValueError("Date format not selected.")
@@ -42,10 +44,17 @@ def analizeChat(filename: str, config: dict) -> str:
         uniqueMsg = getUncommonMessagesPerChatter(messageCount)
         global_minute_ranking, personal_minute_ranking, global_date_ranking, personal_date_ranking, global_hour_ranking, personal_hour_ranking = getTimeDicts(groupChat)
         dStart, dEnd, dayPctg, pctgDict = getTimeStats(groupChat, dateStart, dateEnd)
+        if includeMedia:
+            mediaSentByChatter(groupChat)
+            absChampionDict = getAbsoluteChampionPerMediaType(groupChat)
+        makeMessagePie(groupChat)
+        makeTimeStackplot(groupChat)
         longest_streak = dEnd - dStart
         message = ''
         message += f"{groupChat.messageAmount} messages were sent.\n"
         message += f"A message was sent {dayPctg*100:.2f}% of all days.\n"
+        if includeMedia:
+            message += f"{groupChat.mediaSentAmount} media were sent.\n"
         message += "="*70 + "\n"
         mlist = groupChat.members
         for user in mlist:
@@ -78,7 +87,8 @@ def analizeChat(filename: str, config: dict) -> str:
                         if messageData[4] != 100:
                             message += f"\t'{messageData[0]}' was said {(messageData[1]):.1f}% more than the average by this user. They said it {messageData[3]} times ({(messageData[4]):.2f}% of total usage)\n"
 
-                message += f"They sent {sum(user.mediaSent.values())} media files. {user.mediaSent[MediaType.STICKER]} of them were stickers and {user.mediaSent[MediaType.T_MEDIA]} were once media.\n"
+                if includeMedia:
+                    message += f"They sent {sum(user.mediaSent.values())} media files. {user.mediaSent[MediaType.STICKER]} of them were stickers and {user.mediaSent[MediaType.T_MEDIA]} were once media.\n"
                 if caseSensitive:
                     for phrase in phraseList:
                         message += f"They said '{phrase}' {phraseCount[user.name][phrase]} times.\n"
@@ -98,6 +108,20 @@ def analizeChat(filename: str, config: dict) -> str:
         most_message_day = max(global_date_ranking, key=global_date_ranking.get)
         message += f"The day with the most messages was {most_message_day}, at {global_date_ranking[most_message_day]} messages.\n"
         most_hour_day = max(global_minute_ranking, key=global_minute_ranking.get)
+        message += "="*70 + "\n"
+        if includeMedia:
+            for m_type in absChampionDict.keys():
+                if len(absChampionDict[m_type]) == 1:
+                    champion = absChampionDict[m_type][0]
+                    message += f"The chatter that has sent most {m_type.value}s is {champion.name} ({champion.mediaSent[m_type]} times)\n"
+                else:
+                    champions = absChampionDict[m_type]
+                    for champ in champions[:-1]:
+                        message += f"{champ.name}, "
+                    message += f"and {champions[-1]} were tied in sending the most {m_type.value}s ({champions[-1].mediaSent[m_type]} times)\n"
+
+            message += "="*70 + "\n"
+        
         message += f"The most preffered HOUR AND MINUTE for messaging was {most_hour_day}, at {global_minute_ranking[most_hour_day]} messages.\n"
 
         if len(global_hour_ranking) == 24: 

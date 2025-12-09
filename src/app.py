@@ -58,6 +58,7 @@ def startChatnalisis():
         config["phraseList"] = wordList
         config["caseSensitive"] = caseSensitive.get()
         config["languageIndex"] = language.get()
+        config["includeMedia"] = includeMedia.get()
         message = analizeChat(filename.get(), config)
         filepath = path.join(path.abspath(""),f"results_{path.basename(filename.get())}")
         with open(filepath, "w+") as f:
@@ -266,7 +267,7 @@ try:
 
     analysisConfig = ttk.Frame(main)
 
-    includeMediaButton = ttk.Checkbutton(analysisConfig, textvariable=includeMediaText, variable=includeMedia, state="disabled")
+    includeMediaButton = ttk.Checkbutton(analysisConfig, textvariable=includeMediaText, variable=includeMedia)
     includeMediaButton.grid(row=0, column=0, pady=(10,0))
 
     mediaWarningLabel = ttk.Label(analysisConfig, textvariable=mediaWarningText, justify="center", font=italic, foreground="grey")

@@ -155,6 +155,7 @@ class Chat:
     messageAmount: int
     events: list[Event]
     eventAmount: int
+    mediaSentAmount: int
 
     def addMember(self, name: str) -> int:
         id = len(self.members)
@@ -166,6 +167,8 @@ class Chat:
         message = Message(dt,content=msg, wE=wE, wD=wD, mT=mT)
         self.members[id].addMessageMember(message)
         self.messageAmount += 1
+        if mT != MediaType.NONE:
+            self.mediaSentAmount += 1
 
     # Deprecated function.
     def updateMessageListChat(self, msgl: list[Message], member: Member):
@@ -191,3 +194,4 @@ class Chat:
         self.messageAmount = 0
         self.events = []
         self.eventAmount = 0
+        self.mediaSentAmount = 0
