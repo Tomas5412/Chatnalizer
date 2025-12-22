@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
 from tkinter.filedialog import askopenfilename
-from ChatFunctions.chatnalizer import analizeChat
+from ChatFunctions.chatpdf import analizeChat
 from misc.classes import DATE_TYPE
 from os import path
 import datetime as dt
@@ -60,11 +60,11 @@ def startChatnalisis():
         config["languageIndex"] = language.get()
         config["includeMedia"] = includeMedia.get()
         message = analizeChat(filename.get(), config)
-        filepath = path.join(path.abspath(""),f"results_{path.basename(filename.get())}")
-        with open(filepath, "w+") as f:
-            f.write(message)
-            f.close
-
+        # filepath = path.join(path.abspath(""),f"results_{path.basename(filename.get())}")
+        # with open(filepath, "w+") as f:
+        #     f.write(message)
+        #     f.close
+        filepath = path.join(path.abspath(""),"results.pdf")
         warningText.set(APP_KEYWORDS[LANGUAGES[language.get()]]["analysis_complete"] + filepath)
     
     except KeyError as e:

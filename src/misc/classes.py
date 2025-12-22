@@ -22,12 +22,12 @@ class ActionType(Enum):
     OTHER = "Other"
 
 class MediaType(Enum):
-    VIDEO = "video"
-    PHOTO = "photo"
-    STICKER = "sticker"
-    GIF = "gif" #pronounced with a hard G
-    AUDIO = "audio"
-    T_MEDIA = "t_media" #temporal media
+    VIDEO = "Video"
+    PHOTO = "Photo"
+    STICKER = "Sticker"
+    GIF = "Gif" #pronounced with a hard G
+    AUDIO = "Audio"
+    T_MEDIA = "Temporal media" #temporal media
     LOCATION = "location"
     SURVEY = "survey"
     EVENT = "event"

@@ -29,7 +29,7 @@ def makeMessagePie(gc: Chat, langage:str="SPANISH"):
     ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
            ylim=(0, 8), yticks=np.arange(1, 8))
     ax.set_axis_off()
-    plt.savefig("internal/messagePie.png",transparent=False)
+    plt.savefig("internal/messagePie.svg",transparent=False)
 
 def makeTimeStackplot(gc:Chat, language:str="SPANISH"):
     listsPerChatter:dict[str,tuple[list[datetime.date],list[int]]] = {}
@@ -110,7 +110,7 @@ def mediaSentByChatter(gc: Chat, language:str="SPANISH"):
             ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
                 ylim=(0, 8), yticks=np.arange(1, 8))
             ax.set_axis_off()
-            plt.savefig(f"internal/{member.name}-mediaSent.png",transparent=False)
+            plt.savefig(f"internal/{member.name}-mediaSent.svg",transparent=False)
             # plt.show()
 
 

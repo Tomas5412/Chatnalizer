@@ -12,6 +12,7 @@ src/chatparseados/*
 src/results.txt
 results_*
 src/internal/*
+src/results.pdf
 
 # Distribution / packaging
 .Python

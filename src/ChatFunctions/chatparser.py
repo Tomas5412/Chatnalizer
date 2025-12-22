@@ -198,8 +198,9 @@ def parseMessage(message:str, kwords:dict=SPANISH_KEYWORDS):
     edited = False
     mType = MediaType.NONE
     for kword in kwords["OMMITED_MEDIA"]:
-        if parsedMsg == kword:
+        if parsedMsg in kword:
             mType = MediaType.OTHER
+            parsedMsg = ""
             break
     for kword in kwords["DELETED_MSG"]:
         if parsedMsg == kword:

@@ -34,8 +34,8 @@ SPANISH_KEYWORDS = {
 ENGLISH_KEYWORDS = {
     # Message stuff
     "MEDIA_MSG" : ["(file attached)"],
-    "OMMITED_MEDIA" : ["<Media omitted>","<media omitted>"],
-    "TEMPORAL_MEDIA" : [""],
+    "OMMITED_MEDIA" : ["<Media omitted>","<media omitted>", "<Media omitted>"],
+    "TEMPORAL_MEDIA" : ["", "<media omitted>"],
     "OTHER_MEDIA" : [],
     "DELETED_MSG" : ["This message was deleted"],
     "SELF_DELETED_MSG" : ["You deleted this message"],
