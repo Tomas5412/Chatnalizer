@@ -98,6 +98,7 @@ class Member:
     actionsDone: dict[ActionType, int]
     deletedMessages : int
     editedMessages : int
+    avgMessageLength : int
 
     def addMessageMember(self, msg:Message):
         self.m_ammount += 1
@@ -108,6 +109,7 @@ class Member:
             self.deletedMessages += 1
         if msg.wasEdited:
             self.editedMessages += 1
+        self.avgMessageLength += (len(msg.content) - self.avgMessageLength) / len(self.messages)
 
     def addActionMember(self, act:Action):
         self.a_ammount += 1
@@ -146,6 +148,7 @@ class Member:
         self.actionsDone = {act:0 for act in ActionType}
         self.deletedMessages = 0
         self.editedMessages = 0
+        self.avgMessageLength = 0
 
 
 

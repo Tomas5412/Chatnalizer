@@ -4,7 +4,7 @@ SPANISH_KEYWORDS = {
     "MEDIA_MSG" : ["(archivo adjunto)"],
     "OMMITED_MEDIA" : ["<Multimedia omitido>", "audio omitido", "imagen omitida", "video omitido", "sticker omitido",],
     "TEMPORAL_MEDIA" : ["null", 
-                      "Recibiste un mensaje de visualización única. Para mayor privacidad, solo puedes abrirlo en tu teléfono."],
+                      "Recibiste un mensaje de visualización única. Para mayor privacidad, solo puedes abrirlo en tu teléfono.",""],
     "OTHER_MEDIA" : ["No se puede mostrar este mensaje aquí. Para verlo, abre WhatsApp en tu teléfono.",
                      ],
     "DELETED_MSG" : ["Se eliminó este mensaje."],
@@ -185,3 +185,16 @@ GRAPHIC_KEYWORDS = []
 WORDS_TO_IGNORE = ["<multimedia","omitido>","null","omitido","omitida","sticker","audio","imagen","video","<se","mensaje.>","<adjunto:","votos)"]
 
 MESSAGES_TO_IGNORE = ["imagen omitida", "audio omitido", "null", "<multimedia omitido>", "sticker omitido", "video omitido", "eliminaste este mensaje","ubicación en tiempo real compartida","esperando este mensaje"]
+
+COLORS = [
+    (0xFF,0,0),
+    (0xFF,0x87,0),
+    (0xFF,0xD3,0),
+    (0xDE,0xFF,0x0A),
+    (0xA1,0xFF,0x0A),
+    (0x0A,0xFF,0x99),
+    (0x0A,0xEF,0xFF),
+    (0x14,0x7D,0xF5),
+    (0X58,0x0a,0xff),
+    (0xbe,0x0a,0xff)
+]

@@ -3,6 +3,7 @@ from misc.keywords import SPANISH_KEYWORDS, AUTHOR_NAME, ENGLISH_KEYWORDS, PORTU
 from datetime import datetime
 from unicodedata import category
 from dateutil import parser
+from time import time
 
 def splitDateNameByFormat(header: str, fType:FORMAT_TYPE):
     match fType:
@@ -236,6 +237,7 @@ def parseMessage(message:str, kwords:dict=SPANISH_KEYWORDS):
 
 
 def parseChat(data, dStart: datetime=datetime(2000,1,1), dEnd: datetime=datetime.now(), language:str="SPANISH", dateType: str="DD/MM/YY") -> Chat:
+    start = time()
     groupChat = Chat()
     match language:
         case "SPANISH":
@@ -271,7 +273,8 @@ def parseChat(data, dStart: datetime=datetime(2000,1,1), dEnd: datetime=datetime
             if name and (dtime >= dStart) and (dtime <= dEnd):
                 userId = groupChat.getOrMakeUserId(name)
                 groupChat.addActionChat(dt=dtime,id=userId,atype=type,target=target)
-
+    parsingTime = time() - start
+    print(f"Chat parsing completed! It took {parsingTime}.")
     return groupChat
 
 
