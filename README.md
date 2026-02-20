@@ -10,7 +10,7 @@ From the root, run:
 
 This should open the next window:
 
-![App Screenshot](C:\Proyectos\Chatnalizer\assets\appScreenshot.png)
+![App Screenshot](assets\appScreenshot.png)
 
 In order, from left to right:
 
@@ -45,3 +45,4 @@ ___
 Do not include chat members that have ":" in their name, or (for whatever reason) the end of line '\n' character.
 
 Messages that have nested messages in their contents (like ones that copy and paste other messages) can count as more than one.
+
