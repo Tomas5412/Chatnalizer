@@ -4,9 +4,17 @@ ___
 
 ## How to run
 
-From the root, run:
+First, make a virtual enviroment and install all dependencies:
 
-```$ python .\src\app.py```
+```$ python -m venv .venv```
+
+```$ python -m pip install -r ./requirements.txt```
+
+Now activate the virtual enviroment and go to **the src directory**. There, run:
+
+```$ python .\app.py```
+
+*If an error shows up, make sure you're in the ./src directory (don't run ./src/app.py in the root directory! For some reason it doesn't work in the virtual enviroment).*
 
 This should open the next window:
 
@@ -45,5 +53,3 @@ ___
 Do not include chat members that have ":" in their name, or (for whatever reason) the end of line '\n' character.
 
 Messages that have nested messages in their contents (like ones that copy and paste other messages) can count as more than one.
-
-
