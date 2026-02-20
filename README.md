@@ -10,7 +10,7 @@ From the root, run:
 
 This should open the next window:
 
-![App Screenshot](.\assets\appScreenshot.png)
+![App Screenshot](appScreenshot.png)
 
 In order, from left to right:
 
