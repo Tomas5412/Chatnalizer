@@ -1,17 +1,36 @@
-# Chatnalizador
+# Chatnalizer
 
 ___
 
-## Cómo ejecutar
+## How to run
 
-Desde la carpeta inicial, correr:
+From the root, run:
 
 ```$ python .\src\app.py```
 
-Y elegir el archivo que contenga el chat a analizar. El archivo **Debe ser** un archivo de texto .txt con codificación utf-8
+This should open the next window:
+
+![App Screenshot](C:\Proyectos\Chatnalizer\assets\appScreenshot.png)
+
+In order, from left to right:
+
+- **Filter by date** lets you filter the chatnalisis by date. If the buttons are turned off, the analisis doesn't take into account the dates selected.
+
+- Selecting the right **date format** is important! Whatsapp automatically exports english chats using MM/DD/YY, and spanish/portuguese ones using the normal format.
+
+- To actually do an analisis, first **select the file** and then click **The big green button that says chatnalize.**
+
+- WhatsApp has the option to export chats with or without media. If you exported with media, turn **media analysis** ON (the actual media files are not needed)
+
+- **Case sensitivity** and **Exclude Meta AI from the analisis** are self explaining.
+
+- If you add strings to the **Phrase List**, the final result will also show each person in how many messages they said each string.
+
+- Set the language to the one the chat was imported!!! This is important since the keywords change accordingly.
+
 ___
 
-## Patrones de hora detectados
+## Detected hour patterns
 
 - [DD/MM/YY, HH:MM]
 
@@ -21,10 +40,8 @@ ___
 
 ___
 
-## Incoherencias
+## Warnings
 
-Si un nombre de usuario lleva el caracter ":", los mensajes de ese usuario van a tener incoherencias. Se recomienda cambiar estos antes de usar el Chatnalizador
+Do not include chat members that have ":" in their name, or (for whatever reason) the end of line '\n' character.
 
-Idem con un nombre de usuario que por algún motivo malicioso tenga un fin de línea en su nombre.
-
-Por supuesto que todos los mensajes que contengan algún patrón utilizado por el sistema tendrán incoherencias. En especial los mensajes que copian y pegan otros mensajes.
+Messages that have nested messages in their contents (like ones that copy and paste other messages) can count as more than one.

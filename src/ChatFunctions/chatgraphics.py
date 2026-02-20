@@ -12,9 +12,11 @@ from matplotlib.projections.polar import PolarAxes
 from matplotlib.spines import Spine
 from matplotlib.transforms import Affine2D
 
-# For testing, only. Uncomment when testing 
+
+
+#! For testing, only. Uncomment when testing 
 #from ChatFunctions.chatparser import parseChat
-# Your parsed message chat, here.
+### Your parsed message chat, here.
 #from ChatFunctions.chatnalisis import getTimeDicts
 
 
@@ -24,7 +26,7 @@ def makeMessagePie(gc: Chat, langage:str="SPANISH"):
     # plt.style.use('_mpl-gallery')
     x = []
     labels = []
-    for member in gc.members:
+    for member in list(gc.members.values()):
         if member.m_ammount:
             x.append(member.m_ammount)
             labels.append(member.name)
@@ -45,7 +47,7 @@ def makeMessagePie(gc: Chat, langage:str="SPANISH"):
     plt.close()
 
 def mediaSentByChatter(gc: Chat, language:str="SPANISH"):
-    for member in gc.members:
+    for member in list(gc.members.values()):
         x = []
         labels = []
         for m_type in MediaType:
@@ -72,8 +74,8 @@ def mediaSentByChatter(gc: Chat, language:str="SPANISH"):
 ### Time stackplots
 
 def makeTimeStackplot(gc:Chat, language:str="SPANISH"):
-    listsPerChatter:dict[str,tuple[list[datetime.date],list[int]]] = {}
-    for member in gc.members:
+    listsPerChatter:dict[str, tuple[list[datetime.date],list[int]]] = {} # name : [(date, number of messages)]
+    for member in list(gc.members.values()):
         dateList = []
         messageCount = []
         member.messages.sort(key=lambda x:x.dtime) #Just in case! This should not matter
@@ -83,7 +85,7 @@ def makeTimeStackplot(gc:Chat, language:str="SPANISH"):
                 messageCount[-1] += 1
             else:
                 dateList.append(date.date())
-                messageCount.append(1)
+                messageCount.append(0)
         if (dateList and messageCount): listsPerChatter[member.name] = [dateList, messageCount]
 
 
@@ -130,9 +132,7 @@ def makeTimeStackplot(gc:Chat, language:str="SPANISH"):
     plt.savefig("internal/total-time-stackplot.svg",transparent=False)
     plt.close()
 
-### Radar Charts
-
-## Internal function, gotten from Matplotlib's official site.
+## Internal function, from Matplotlib's official site.
 def radar_factory(num_vars, frame='circle'):
     """
     Create a radar chart with `num_vars` Axes.
@@ -221,6 +221,8 @@ def radar_factory(num_vars, frame='circle'):
 
     register_projection(RadarAxes)
     return theta
+
+### Radar Charts
 
 def makeHourRadarChart(timeStats:dict[int,int], msgAmount:int, language:str="SPANISH"):
 

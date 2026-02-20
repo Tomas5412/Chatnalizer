@@ -8,6 +8,8 @@ from datetime import timedelta
 from misc.keywords import AUTHOR_NAME, LANGUAGES
 
 
+###### ! This file is deprecated!! Go to chatpdf!!
+
 def analizeChat(filename: str, config: dict[str,bool]) -> str:
 
     # All the config variables are extracted at once.

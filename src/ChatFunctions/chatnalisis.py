@@ -15,7 +15,7 @@ def mostWordsByChatter(chat: Chat, caseSensitive: bool) -> tuple[dict[Member, di
         
         For the second dict, the str keys are strictly emojis.
     """
-    members = chat.members
+    members = list(chat.members.values()) # "members" is not a dict, but this functions needs it to be a list. The order shouldn't matter.
     globalWordDict = {}
     globalEmojiDict = {}
     for member in members:
@@ -51,7 +51,7 @@ def mostMessagesByChatter(chat: Chat, wordList: list[str] = [], caseSensitive:bo
         
         For the second dict, the str keys are strictly ones from the phrase list.
     """
-    members = chat.members
+    members = list(chat.members.values()) # "members" is not a dict, but this functions needs it to be a list. The order shouldn't matter.
     globalMessageDict = {}
     if wordList:
         wordListCount = {member.name : {m : 0 for m in wordList} for member in members}
@@ -199,7 +199,7 @@ def filterChatByTime(gc: Chat, dateStart: datetime, dateEnd: datetime) -> Chat:
     """
     Deprecated function, filters chat by two dates
     """
-    for member in gc.members:
+    for member in list(gc.members.values()): # "members" is not a dict, but this functions needs it to be a list. The order shouldn't matter.:
         newMessageList = []
         for message in member.messages:
             if (message.dtime >= dateStart) and (message.dtime <= dateEnd):
@@ -223,7 +223,7 @@ def getTimeDicts(gc: Chat) -> tuple[dict[time,int], dict[str,dict[time,int]],
     # Statistics variables are in snake_case because they're cuter that way (?
         
     messageList = []
-    for member in gc.members:
+    for member in list(gc.members.values()): # "members" is not a dict, but this functions needs it to be a list. The order shouldn't matter.:
         for message in member.messages:
             messageList.append((message.dtime, member.name))
         for action in member.actions:
@@ -365,7 +365,7 @@ def getTimeStats(gc:Chat, dateStart:datetime, dateEnd:datetime):
     Wrapper function that gets other time statistics.
     """
     messageList = []
-    for member in gc.members:
+    for member in list(gc.members.values()): # "members" is not a dict, but this functions needs it to be a list. The order shouldn't matter.
         for message in member.messages:
             messageList.append((message.dtime, member.name))
         for action in member.actions:
@@ -382,7 +382,7 @@ def getMostTalkedTo(groupChat: Chat) -> dict[str,tuple[str,int]]:
     This is calculated by counting how many times they've sent a message directly after the other person.
     """
     messageList = []
-    for member in groupChat.members:
+    for member in list(groupChat.members.values()):
         for message in member.messages:
             messageList.append((message.dtime, member.name))
         for action in member.actions:
@@ -411,7 +411,7 @@ def getGlobalMediaStats(gc:Chat) -> dict[MediaType, int]:
     Calculates all the media sent, by type.
     """
     mediaStatsDict = {}
-    for member in gc.members:
+    for member in list(gc.members.values()):
         for m_type in MediaType:
             if m_type != MediaType.NONE:
                 mediaStatsDict[m_type] = mediaStatsDict.get(m_type,0) + member.mediaSent[m_type]
@@ -424,10 +424,10 @@ def getAbsoluteChampionPerMediaType(gc:Chat) -> dict[MediaType,list[Member]]:
     championDict = {}
     for m_type in MediaType:
         if m_type != MediaType.NONE:
-            champion = max(gc.members, key=lambda x: x.mediaSent[m_type]) # This only finds one champion.
+            champion = max(gc.members.values(), key=lambda x: x.mediaSent[m_type]) # This only finds one champion.
             maxVal = champion.mediaSent[m_type]
             if maxVal != 0: # ? This could be done in a better way, for sure. 
-                candidates = list(filter(lambda x: x.mediaSent[m_type] == maxVal, gc.members))
+                candidates = list(filter(lambda x: x.mediaSent[m_type] == maxVal, gc.members.values()))
                 championDict[m_type] = candidates
                 # ? Investigate any python shortcuts to make max return a list of all the max values.
     return championDict
@@ -440,7 +440,7 @@ def getRelativeChampionPerMediaType(gc:Chat) -> dict[MediaType,list[Member]]:
     championDict = {}
     for m_type in MediaType:
         if m_type != MediaType.NONE:
-            curatedMembers = list(filter(lambda x: x.m_ammount != 0, gc.members))
+            curatedMembers = list(filter(lambda x: x.m_ammount != 0, gc.members.values()))
             champion = max(curatedMembers, key=lambda x: x.mediaSent[m_type] / x.m_ammount)
             maxVal = champion.mediaSent[m_type] / champion.m_ammount
             if maxVal != 0:

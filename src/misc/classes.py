@@ -154,7 +154,7 @@ class Member:
 
 
 class Chat:
-    members: list[Member]
+    members: dict[int,Member]
     messageAmount: int
     events: list[Event]
     eventAmount: int
@@ -163,7 +163,7 @@ class Chat:
     def addMember(self, name: str) -> int:
         id = len(self.members)
         member = Member(id=id,name=name)
-        self.members.append(member)
+        self.members[id] = member
         return id
 
     def addMessageChat(self, dt, msg:str, id: int, wE: bool=False, wD: bool=False, mT=MediaType.NONE):
@@ -173,11 +173,7 @@ class Chat:
         if mT != MediaType.NONE:
             self.mediaSentAmount += 1
 
-    # Deprecated function.
-    def updateMessageListChat(self, msgl: list[Message], member: Member):
-        self.messageAmount -= member.m_ammount
-        member.updateMessageListMember(msgl)
-        self.messageAmount += member.m_ammount
+
 
     def getOrMakeUserId(self, name:str):
         for i in range(len(self.members)):
@@ -191,9 +187,38 @@ class Chat:
         act = Action(dt=dt, type=atype,target=target)
         self.members[id].addActionMember(act)
         self.eventAmount += 1
+
+    def deleteMember(self, id:int):
+        member = self.members[id]
+        self.messageAmount -= member.m_ammount
+        for type in MediaType:
+            self.mediaSentAmount -= member.mediaSent[type]
+
+        ### At the moment, meta AI cannot do any event. 
+        # In case this happens, more code should be put here to handle this. 
+        ### (who would trust that stupid bot to do any events?)
+
+        del self.members[id]
+
+        return
+
+    def deleteMemberByName(self, name:str):
+        for member in self.members.values():
+            if member.name == name:
+                self.deleteMember(member.id)
+                break
+        # Does nothing if the name's not found.
+        return
     
+
+    # ! Deprecated function.
+    def updateMessageListChat(self, msgl: list[Message], member: Member):
+        self.messageAmount -= member.m_ammount
+        member.updateMessageListMember(msgl)
+        self.messageAmount += member.m_ammount
+
     def __init__(self):
-        self.members = []
+        self.members = {}
         self.messageAmount = 0
         self.events = []
         self.eventAmount = 0

@@ -1,5 +1,5 @@
 from misc.classes import *
-from misc.keywords import SPANISH_KEYWORDS, AUTHOR_NAME, ENGLISH_KEYWORDS, PORTUGUESE_KEYWORDS
+from misc.keywords import SPANISH_KEYWORDS, AUTHOR_NAME, ENGLISH_KEYWORDS, PORTUGUESE_KEYWORDS, META_AI_NAME
 from datetime import datetime
 from unicodedata import category
 from dateutil import parser
@@ -236,7 +236,7 @@ def parseMessage(message:str, kwords:dict=SPANISH_KEYWORDS):
     return edited, deleted, mType, parsedMsg
 
 
-def parseChat(data, dStart: datetime=datetime(2000,1,1), dEnd: datetime=datetime.now(), language:str="SPANISH", dateType: str="DD/MM/YY") -> Chat:
+def parseChat(data, dStart: datetime=datetime(2000,1,1), dEnd: datetime=datetime.now(), language:str="SPANISH", dateType: str="DD/MM/YY", excludeAI: bool=False) -> Chat:
     start = time()
     groupChat = Chat()
     match language:
@@ -273,6 +273,8 @@ def parseChat(data, dStart: datetime=datetime(2000,1,1), dEnd: datetime=datetime
             if name and (dtime >= dStart) and (dtime <= dEnd):
                 userId = groupChat.getOrMakeUserId(name)
                 groupChat.addActionChat(dt=dtime,id=userId,atype=type,target=target)
+    if excludeAI:
+        groupChat.deleteMemberByName(META_AI_NAME)
     parsingTime = time() - start
     print(f"Chat parsing completed! It took {parsingTime}.")
     return groupChat

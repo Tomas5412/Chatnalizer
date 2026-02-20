@@ -8,6 +8,7 @@ from misc.classes import DATE_TYPE
 from os import path
 import datetime as dt
 import tkcalendar as tkc
+import traceback
 
 
 THEME_FILE = "forest-dark.tcl"
@@ -16,6 +17,7 @@ THEME_NAME = "forest-dark"
 ROW_AMMOUNT = 5 # + 1 (including 0th row)
 COLUMN_AMMOUNT = 2 # + 1
 
+## helper functions 
 def getFile():
     filename.set(askopenfilename())
     if filename.get():
@@ -31,7 +33,7 @@ def startChatnalisis():
                 dStart = dateStart.get_date()
                 dStart = dt.datetime(day=dStart.day, month=dStart.month, year=dStart.year, hour=0, minute=0)
             except Exception as e:
-                print(f"Exception in date fetch '{e}'. defaulting to no lower bound.")
+                print(f"Exception in date fetch '{e}'. defaulting to 'no lower bound'.")
                 dStart = dt.datetime(2009,2,1)
         else:
             dStart = dt.datetime(2009,2,1)
@@ -41,7 +43,7 @@ def startChatnalisis():
                 dEnd = dateEnd.get_date()
                 dEnd = dt.datetime(day=dEnd.day, month=dEnd.month, year=dEnd.year, hour=23, minute=59)
             except Exception as e:
-                print(f"Exception in date fetch '{e}'. defaulting to no upper bound.")
+                print(f"Exception in date fetch '{e}'. defaulting to 'no upper bound'.")
                 dEnd = dt.datetime.now()
         else:
             dEnd = dt.datetime.now()
@@ -68,18 +70,22 @@ def startChatnalisis():
         warningText.set(APP_KEYWORDS[LANGUAGES[language.get()]]["analysis_complete"] + filepath)
     
     except KeyError as e:
-        print(e)
+        print(traceback.format_exc())
         warningText.set("Key error: " + str(e))
     except ValueError as e:
-        print(e)
+        print(traceback.format_exc())
         warningText.set("Value error: " + str(e))
     except Exception as e:
-        print(e)
+        print(traceback.format_exc())
         warningText.set(e)
 
+
+## App building
+
 root = tk.Tk()
-root.title("Chatnalizer (PROTOTYPE) version 0.2")
+root.title("Chatnalizer (PROTOTYPE) version 0.5")
 root.option_add("*tearOff", False)
+
 # chatnalizerLogo = tk.PhotoImage(file="chatnalizerLogo.png") # The world is not ready...
 # root.wm_iconphoto(True, chatnalizerLogo)
 
